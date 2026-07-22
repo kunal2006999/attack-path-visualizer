@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: attackpathvisualizer
+
+  profiles:
+    active: dev
+
+  server:
+    port: 8080
