@@ -1,0 +1,23 @@
+package com.kunal.attackpathvisualizer.core.model;
+
+import com.kunal.attackpathvisualizer.core.enums.ResourceType;
+
+import java.util.Map;
+
+public class Namespace extends KubernetesResource{
+    public Namespace(
+            String uid,
+            String name,
+            Map<String, String> labels,
+            Map<String, String> annotations) {
+
+        super(
+                uid,
+                name,
+                null,
+                ResourceType.NAMESPACE,
+                labels,
+                annotations
+        );
+    }
+}
