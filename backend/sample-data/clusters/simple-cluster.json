@@ -1,0 +1,213 @@
+{
+  "clusterName": "simple-cluster",
+
+  "namespaces": [
+    {
+      "uid": "ns-001",
+      "name": "production",
+      "namespace": null,
+      "labels": {
+        "environment": "production"
+      },
+      "annotations": {},
+      "creationTimestamp": "2026-08-25T10:00:00Z"
+    }
+  ],
+
+  "nodes": [
+    {
+      "uid": "node-001",
+      "name": "worker-node-1",
+      "namespace": null,
+      "labels": {
+        "kubernetes.io/hostname": "worker-node-1"
+      },
+      "annotations": {},
+      "creationTimestamp": "2026-08-25T09:00:00Z"
+    }
+  ],
+
+  "pods": [
+    {
+      "uid": "pod-001",
+      "name": "backend-pod",
+      "namespace": "production",
+      "labels": {
+        "app": "backend"
+      },
+      "annotations": {},
+      "creationTimestamp": "2026-08-25T10:05:00Z",
+      "serviceAccountName": "backend-sa"
+    }
+  ],
+
+  "deployments": [
+    {
+      "uid": "deployment-001",
+      "name": "backend",
+      "namespace": "production",
+      "labels": {
+        "app": "backend"
+      },
+      "annotations": {},
+      "creationTimestamp": "2026-08-25T10:02:00Z",
+      "replicas": 1,
+      "selector": {
+        "app": "backend"
+      }
+    }
+  ],
+
+  "replicaSets": [
+    {
+      "uid": "replicaset-001",
+      "name": "backend-rs",
+      "namespace": "production",
+      "labels": {
+        "app": "backend"
+      },
+      "annotations": {},
+      "creationTimestamp": "2026-08-25T10:03:00Z",
+      "replicas": 1,
+      "selector": {
+        "app": "backend"
+      }
+    }
+  ],
+
+  "services": [
+    {
+      "uid": "service-001",
+      "name": "backend-service",
+      "namespace": "production",
+      "labels": {
+        "app": "backend"
+      },
+      "annotations": {},
+      "creationTimestamp": "2026-08-25T10:04:00Z",
+      "selector": {
+        "app": "backend"
+      }
+    }
+  ],
+
+  "ingresses": [
+    {
+      "uid": "ingress-001",
+      "name": "backend-ingress",
+      "namespace": "production",
+      "labels": {},
+      "annotations": {},
+      "creationTimestamp": "2026-08-25T10:04:30Z",
+      "serviceName": "backend-service"
+    }
+  ],
+
+  "serviceAccounts": [
+    {
+      "uid": "sa-001",
+      "name": "backend-sa",
+      "namespace": "production",
+      "labels": {
+        "app": "backend"
+      },
+      "annotations": {},
+      "creationTimestamp": "2026-08-25T10:01:00Z"
+    }
+  ],
+
+  "roles": [
+    {
+      "uid": "role-001",
+      "name": "backend-reader",
+      "namespace": "production",
+      "labels": {},
+      "annotations": {},
+      "creationTimestamp": "2026-08-25T10:06:00Z",
+      "rules": [
+        {
+          "apiGroups": [
+            ""
+          ],
+          "resources": [
+            "secrets"
+          ],
+          "verbs": [
+            "get",
+            "list"
+          ],
+          "resourceNames": []
+        }
+      ]
+    }
+  ],
+
+  "clusterRoles": [],
+
+  "roleBindings": [
+    {
+      "uid": "binding-001",
+      "name": "backend-binding",
+      "namespace": "production",
+      "labels": {},
+      "annotations": {},
+      "creationTimestamp": "2026-08-25T10:07:00Z",
+      "subjectName": "backend-sa",
+      "roleName": "backend-reader"
+    }
+  ],
+
+  "clusterRoleBindings": [],
+
+  "secrets": [
+    {
+      "uid": "secret-001",
+      "name": "database-secret",
+      "namespace": "production",
+      "labels": {
+        "type": "database"
+      },
+      "annotations": {},
+      "creationTimestamp": "2026-08-25T10:08:00Z",
+      "secretType": "Opaque"
+    }
+  ],
+
+  "configMaps": [
+    {
+      "uid": "configmap-001",
+      "name": "backend-config",
+      "namespace": "production",
+      "labels": {
+        "app": "backend"
+      },
+      "annotations": {},
+      "creationTimestamp": "2026-08-25T10:08:30Z"
+    }
+  ],
+
+  "persistentVolumes": [
+    {
+      "uid": "pv-001",
+      "name": "backend-pv",
+      "namespace": null,
+      "labels": {},
+      "annotations": {},
+      "creationTimestamp": "2026-08-25T10:00:30Z",
+      "storageClassName": "standard"
+    }
+  ],
+
+  "persistentVolumeClaims": [
+    {
+      "uid": "pvc-001",
+      "name": "backend-pvc",
+      "namespace": "production",
+      "labels": {},
+      "annotations": {},
+      "creationTimestamp": "2026-08-25T10:01:30Z",
+      "volumeName": "backend-pv",
+      "storageClassName": "standard"
+    }
+  ]
+}
