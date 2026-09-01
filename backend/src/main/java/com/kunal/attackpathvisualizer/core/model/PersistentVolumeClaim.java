@@ -2,6 +2,7 @@ package com.kunal.attackpathvisualizer.core.model;
 
 import com.kunal.attackpathvisualizer.core.enums.ResourceType;
 
+import java.time.Instant;
 import java.util.Map;
 
 public class PersistentVolumeClaim extends KubernetesResource{
@@ -14,7 +15,7 @@ public class PersistentVolumeClaim extends KubernetesResource{
             String namespace,
             Map<String, String> labels,
             Map<String, String> annotations,
-            String volumeName,
+            Instant creationTimestamp, String volumeName,
             String storageClassName) {
 
         super(
@@ -23,7 +24,8 @@ public class PersistentVolumeClaim extends KubernetesResource{
                 namespace,
                 ResourceType.PERSISTENT_VOLUME_CLAIM,
                 labels,
-                annotations
+                annotations,
+                creationTimestamp
         );
 
         this.volumeName = volumeName;

@@ -1,0 +1,134 @@
+{
+  "clusterName": "vulnerable-cluster",
+
+  "namespaces": [
+    {
+      "uid": "ns-vuln-001",
+      "name": "production",
+      "labels": {
+        "environment": "production"
+      },
+      "annotations": {},
+      "creationTimestamp": "2026-08-28T10:00:00Z"
+    }
+  ],
+
+  "nodes": [],
+
+  "pods": [
+    {
+      "uid": "pod-vuln-001",
+      "name": "backend-pod",
+      "namespace": "production",
+      "labels": {
+        "app": "backend"
+      },
+      "annotations": {},
+      "creationTimestamp": "2026-08-28T10:05:00Z",
+      "serviceAccountName": "backend-sa"
+    }
+  ],
+
+  "deployments": [],
+
+  "replicaSets": [],
+
+  "services": [],
+
+  "ingresses": [],
+
+  "serviceAccounts": [
+    {
+      "uid": "sa-vuln-001",
+      "name": "backend-sa",
+      "namespace": "production",
+      "labels": {
+        "app": "backend"
+      },
+      "annotations": {},
+      "creationTimestamp": "2026-08-28T10:01:00Z"
+    }
+  ],
+
+  "roles": [
+    {
+      "uid": "role-vuln-001",
+      "name": "secret-reader",
+      "namespace": "production",
+      "labels": {},
+      "annotations": {},
+      "creationTimestamp": "2026-08-28T10:06:00Z",
+      "rules": [
+        {
+          "apiGroups": [""],
+          "resources": ["secrets"],
+          "verbs": ["get", "list"],
+          "resourceNames": []
+        }
+      ]
+    }
+  ],
+
+  "clusterRoles": [
+    {
+      "uid": "cluster-role-vuln-001",
+      "name": "cluster-admin",
+      "labels": {},
+      "annotations": {},
+      "creationTimestamp": "2026-08-28T10:07:00Z",
+      "rules": [
+        {
+          "apiGroups": ["*"],
+          "resources": ["*"],
+          "verbs": ["*"],
+          "resourceNames": []
+        }
+      ]
+    }
+  ],
+
+  "roleBindings": [
+    {
+      "uid": "role-binding-vuln-001",
+      "name": "backend-secret-reader",
+      "namespace": "production",
+      "labels": {},
+      "annotations": {},
+      "creationTimestamp": "2026-08-28T10:08:00Z",
+      "subjectNames": ["backend-sa"],
+      "roleName": "secret-reader"
+    }
+  ],
+
+  "clusterRoleBindings": [
+    {
+      "uid": "cluster-role-binding-vuln-001",
+      "name": "backend-cluster-admin",
+      "labels": {},
+      "annotations": {},
+      "creationTimestamp": "2026-08-28T10:09:00Z",
+      "subjectNames": ["backend-sa"],
+      "clusterRoleName": "cluster-admin"
+    }
+  ],
+
+  "secrets": [
+    {
+      "uid": "secret-vuln-001",
+      "name": "database-secret",
+      "namespace": "production",
+      "labels": {
+        "sensitive": "true"
+      },
+      "annotations": {},
+      "creationTimestamp": "2026-08-28T10:10:00Z",
+      "secretType": "Opaque"
+    }
+  ],
+
+  "configMaps": [],
+
+  "persistentVolumes": [],
+
+  "persistentVolumeClaims": []
+}

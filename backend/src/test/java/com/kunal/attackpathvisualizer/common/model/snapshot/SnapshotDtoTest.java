@@ -106,7 +106,7 @@ class SnapshotDtoTest {
         cluster.setPersistentVolumeClaims(List.of(pvc));
         ClusterRoleBindingSnapshot crb = new ClusterRoleBindingSnapshot();
         crb.setName("admin-binding");
-        crb.setSubjectName("admin-sa");
+        crb.setSubjectNames(java.util.List.of("admin-sa"));
         crb.setClusterRoleName("cluster-admin");
         cluster.setClusterRoleBindings(List.of(crb));
         assertEquals("test-cluster", cluster.getClusterName());
@@ -134,10 +134,10 @@ class SnapshotDtoTest {
     @Test
     void roleBindingSnapshot_subjectAndRoleNameRoundTrip() {
         RoleBindingSnapshot rb = new RoleBindingSnapshot();
-        rb.setSubjectName("dev-sa");
-        rb.setRoleName("developer-role");
-        assertEquals("dev-sa", rb.getSubjectName());
-        assertEquals("developer-role", rb.getRoleName());
+        rb.setSubjectNames(java.util.List.of("dev-sa"));
+        rb.setRoleName("developer");
+        assertEquals("dev-sa", rb.getSubjectNames().get(0));
+        assertEquals("developer", rb.getRoleName());
     }
 
     @Test

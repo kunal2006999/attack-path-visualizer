@@ -18,6 +18,6 @@ public class MockClusterBuilderTest {
         assertFalse(cluster.getRelationships().isEmpty());
 
         assertEquals(8, cluster.getResources().size());
-        assertEquals(4, cluster.getRelationships().size());
+        assertEquals(5, cluster.getRelationships().size());
     }
 }

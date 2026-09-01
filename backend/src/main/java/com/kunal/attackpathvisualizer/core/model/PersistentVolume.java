@@ -2,6 +2,7 @@ package com.kunal.attackpathvisualizer.core.model;
 
 import com.kunal.attackpathvisualizer.core.enums.ResourceType;
 
+import java.time.Instant;
 import java.util.Map;
 
 public class PersistentVolume extends KubernetesResource{
@@ -13,7 +14,7 @@ public class PersistentVolume extends KubernetesResource{
             String name,
             Map<String, String> labels,
             Map<String, String> annotations,
-            String storageClassName) {
+            Instant creationTimestamp, String storageClassName) {
 
         super(
                 uid,
@@ -21,7 +22,8 @@ public class PersistentVolume extends KubernetesResource{
                 null,
                 ResourceType.PERSISTENT_VOLUME,
                 labels,
-                annotations
+                annotations,
+                creationTimestamp
         );
 
         this.storageClassName = storageClassName;

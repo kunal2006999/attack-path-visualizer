@@ -2,6 +2,8 @@ package com.kunal.attackpathvisualizer.core.model;
 
 import com.kunal.attackpathvisualizer.core.enums.ResourceType;
 
+import java.time.Instant;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
@@ -12,6 +14,7 @@ public abstract class KubernetesResource {
     private ResourceType type;
     private Map<String, String> labels;
     private Map<String, String> annotations;
+    private Instant creationTimestamp;
 
     protected KubernetesResource(
             String uid,
@@ -19,14 +22,16 @@ public abstract class KubernetesResource {
             String namespace,
             ResourceType type,
             Map<String, String> labels,
-            Map<String, String> annotations) {
+            Map<String, String> annotations,
+            Instant creationTimestamp) {
 
         this.uid = uid;
         this.name = name;
         this.namespace = namespace;
         this.type = type;
-        this.labels = labels;
-        this.annotations = annotations;
+        this.labels = labels != null ? labels : Collections.emptyMap();
+        this.annotations = annotations != null ? annotations : Collections.emptyMap();
+        this.creationTimestamp = creationTimestamp;
     }
 
     public String getUid() {
@@ -46,11 +51,15 @@ public abstract class KubernetesResource {
     }
 
     public Map<String, String> getLabels() {
-        return labels;
+        return Collections.unmodifiableMap(labels);
     }
 
     public Map<String, String> getAnnotations() {
-        return annotations;
+        return Collections.unmodifiableMap(annotations);
+    }
+
+    public Instant getCreationTimestamp() {
+        return creationTimestamp;
     }
 
     @Override

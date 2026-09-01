@@ -2,6 +2,7 @@ package com.kunal.attackpathvisualizer.core.model;
 
 import com.kunal.attackpathvisualizer.core.enums.ResourceType;
 
+import java.time.Instant;
 import java.util.Map;
 
 public class Ingress extends KubernetesResource{
@@ -13,7 +14,7 @@ public class Ingress extends KubernetesResource{
             String namespace,
             Map<String, String> labels,
             Map<String, String> annotations,
-            String serviceName) {
+            Instant creationTimestamp, String serviceName) {
 
         super(
                 uid,
@@ -21,7 +22,8 @@ public class Ingress extends KubernetesResource{
                 namespace,
                 ResourceType.INGRESS,
                 labels,
-                annotations
+                annotations,
+                creationTimestamp
         );
 
         this.serviceName = serviceName;

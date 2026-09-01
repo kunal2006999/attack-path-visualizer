@@ -152,7 +152,7 @@
       "labels": {},
       "annotations": {},
       "creationTimestamp": "2026-08-25T10:07:00Z",
-      "subjectName": "backend-sa",
+      "subjectNames": ["backend-sa"],
       "roleName": "backend-reader"
     }
   ],

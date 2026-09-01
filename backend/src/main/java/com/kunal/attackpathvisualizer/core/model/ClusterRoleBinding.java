@@ -2,10 +2,11 @@ package com.kunal.attackpathvisualizer.core.model;
 
 import com.kunal.attackpathvisualizer.core.enums.ResourceType;
 
+import java.time.Instant;
 import java.util.Map;
 
 public class ClusterRoleBinding extends KubernetesResource{
-    private String subjectName;
+    private java.util.List<String> subjectNames;
     private String clusterRoleName;
 
     public ClusterRoleBinding(
@@ -13,7 +14,7 @@ public class ClusterRoleBinding extends KubernetesResource{
             String name,
             Map<String, String> labels,
             Map<String, String> annotations,
-            String subjectName,
+            Instant creationTimestamp, java.util.List<String> subjectNames,
             String clusterRoleName) {
 
         super(
@@ -22,15 +23,16 @@ public class ClusterRoleBinding extends KubernetesResource{
                 null,
                 ResourceType.CLUSTER_ROLE_BINDING,
                 labels,
-                annotations
+                annotations,
+                creationTimestamp
         );
 
-        this.subjectName = subjectName;
+        this.subjectNames = subjectNames;
         this.clusterRoleName = clusterRoleName;
     }
 
-    public String getSubjectName() {
-        return subjectName;
+    public java.util.List<String> getSubjectNames() {
+        return subjectNames;
     }
 
     public String getClusterRoleName() {

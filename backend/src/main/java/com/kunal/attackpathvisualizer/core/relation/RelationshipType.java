@@ -10,5 +10,7 @@ public enum RelationshipType {
     CAN_ACCESS,
     CAN_IMPERSONATE,
     DEPENDS_ON,
-    OWNS
+    OWNS,
+    HAS_BINDING,
+    GRANTS
 }

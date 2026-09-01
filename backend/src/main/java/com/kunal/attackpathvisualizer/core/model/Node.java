@@ -2,16 +2,15 @@ package com.kunal.attackpathvisualizer.core.model;
 
 import com.kunal.attackpathvisualizer.core.enums.ResourceType;
 
+import java.time.Instant;
 import java.util.Map;
 
 public class Node extends KubernetesResource{
-    private String nodeName;
-
     public Node(
             String uid,
             String name,
             Map<String, String> labels,
-            Map<String, String> annotations) {
+            Map<String, String> annotations, Instant creationTimestamp) {
 
         super(
                 uid,
@@ -19,13 +18,8 @@ public class Node extends KubernetesResource{
                 null,
                 ResourceType.NODE,
                 labels,
-                annotations
+                annotations,
+                creationTimestamp
         );
-
-        this.nodeName = name;
-    }
-
-    public String getNodeName() {
-        return nodeName;
     }
 }

@@ -2,6 +2,7 @@ package com.kunal.attackpathvisualizer.core.model;
 
 import com.kunal.attackpathvisualizer.core.enums.ResourceType;
 
+import java.time.Instant;
 import java.util.Map;
 
 public class Secret extends KubernetesResource{
@@ -13,7 +14,7 @@ public class Secret extends KubernetesResource{
             String namespace,
             Map<String, String> labels,
             Map<String, String> annotations,
-            String secretType) {
+            Instant creationTimestamp, String secretType) {
 
         super(
                 uid,
@@ -21,7 +22,8 @@ public class Secret extends KubernetesResource{
                 namespace,
                 ResourceType.SECRET,
                 labels,
-                annotations
+                annotations,
+                creationTimestamp
         );
 
         this.secretType = secretType;

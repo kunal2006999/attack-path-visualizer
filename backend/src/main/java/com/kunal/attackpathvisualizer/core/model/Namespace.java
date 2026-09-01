@@ -2,6 +2,7 @@ package com.kunal.attackpathvisualizer.core.model;
 
 import com.kunal.attackpathvisualizer.core.enums.ResourceType;
 
+import java.time.Instant;
 import java.util.Map;
 
 public class Namespace extends KubernetesResource{
@@ -9,7 +10,7 @@ public class Namespace extends KubernetesResource{
             String uid,
             String name,
             Map<String, String> labels,
-            Map<String, String> annotations) {
+            Map<String, String> annotations, Instant creationTimestamp) {
 
         super(
                 uid,
@@ -17,7 +18,8 @@ public class Namespace extends KubernetesResource{
                 null,
                 ResourceType.NAMESPACE,
                 labels,
-                annotations
+                annotations,
+                creationTimestamp
         );
     }
 }

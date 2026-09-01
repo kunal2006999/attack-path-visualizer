@@ -2,6 +2,7 @@ package com.kunal.attackpathvisualizer.core.model;
 
 import com.kunal.attackpathvisualizer.core.enums.ResourceType;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +14,7 @@ public class ClusterRole extends KubernetesResource {
             String name,
             Map<String, String> labels,
             Map<String, String> annotations,
-            List<RbacRule> rules) {
+            Instant creationTimestamp, List<RbacRule> rules) {
 
         super(
                 uid,
@@ -21,7 +22,8 @@ public class ClusterRole extends KubernetesResource {
                 null,
                 ResourceType.CLUSTER_ROLE,
                 labels,
-                annotations
+                annotations,
+                creationTimestamp
         );
 
         this.rules = rules;

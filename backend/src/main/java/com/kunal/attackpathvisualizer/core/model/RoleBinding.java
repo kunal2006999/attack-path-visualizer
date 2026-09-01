@@ -2,10 +2,11 @@ package com.kunal.attackpathvisualizer.core.model;
 
 import com.kunal.attackpathvisualizer.core.enums.ResourceType;
 
+import java.time.Instant;
 import java.util.Map;
 
 public class RoleBinding extends KubernetesResource{
-    private String subjectName;
+    private java.util.List<String> subjectNames;
     private String roleName;
 
     public RoleBinding(
@@ -14,7 +15,7 @@ public class RoleBinding extends KubernetesResource{
             String namespace,
             Map<String, String> labels,
             Map<String, String> annotations,
-            String subjectName,
+            Instant creationTimestamp, java.util.List<String> subjectNames,
             String roleName) {
 
         super(
@@ -23,15 +24,16 @@ public class RoleBinding extends KubernetesResource{
                 namespace,
                 ResourceType.ROLE_BINDING,
                 labels,
-                annotations
+                annotations,
+                creationTimestamp
         );
 
-        this.subjectName = subjectName;
+        this.subjectNames = subjectNames;
         this.roleName = roleName;
     }
 
-    public String getSubjectName() {
-        return subjectName;
+    public java.util.List<String> getSubjectNames() {
+        return subjectNames;
     }
 
     public String getRoleName() {

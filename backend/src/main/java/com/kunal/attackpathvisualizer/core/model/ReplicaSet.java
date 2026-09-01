@@ -2,6 +2,7 @@ package com.kunal.attackpathvisualizer.core.model;
 
 import com.kunal.attackpathvisualizer.core.enums.ResourceType;
 
+import java.time.Instant;
 import java.util.Map;
 
 public class ReplicaSet extends KubernetesResource{
@@ -15,7 +16,7 @@ public class ReplicaSet extends KubernetesResource{
             String namespace,
             Map<String, String> labels,
             Map<String, String> annotations,
-            int replicas,
+            Instant creationTimestamp, int replicas,
             Map<String, String> selector) {
 
         super(
@@ -24,7 +25,8 @@ public class ReplicaSet extends KubernetesResource{
                 namespace,
                 ResourceType.REPLICASET,
                 labels,
-                annotations
+                annotations,
+                creationTimestamp
         );
 
         this.replicas = replicas;

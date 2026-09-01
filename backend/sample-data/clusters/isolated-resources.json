@@ -1,0 +1,85 @@
+{
+  "clusterName": "isolated-resources",
+
+  "namespaces": [
+    {
+      "uid": "ns-isolated-001",
+      "name": "production",
+      "labels": {},
+      "annotations": {},
+      "creationTimestamp": "2026-08-28T12:00:00Z"
+    }
+  ],
+
+  "nodes": [],
+
+  "pods": [
+    {
+      "uid": "pod-isolated-001",
+      "name": "backend-pod",
+      "namespace": "production",
+      "labels": {
+        "app": "backend"
+      },
+      "annotations": {},
+      "creationTimestamp": "2026-08-28T12:01:00Z",
+      "serviceAccountName": "backend-sa"
+    },
+    {
+      "uid": "pod-isolated-002",
+      "name": "isolated-pod",
+      "namespace": "production",
+      "labels": {
+        "app": "isolated"
+      },
+      "annotations": {},
+      "creationTimestamp": "2026-08-28T12:02:00Z",
+      "serviceAccountName": "isolated-sa"
+    }
+  ],
+
+  "deployments": [],
+  "replicaSets": [],
+  "services": [],
+  "ingresses": [],
+
+  "serviceAccounts": [
+    {
+      "uid": "sa-isolated-001",
+      "name": "backend-sa",
+      "namespace": "production",
+      "labels": {},
+      "annotations": {},
+      "creationTimestamp": "2026-08-28T12:03:00Z"
+    },
+    {
+      "uid": "sa-isolated-002",
+      "name": "isolated-sa",
+      "namespace": "production",
+      "labels": {},
+      "annotations": {},
+      "creationTimestamp": "2026-08-28T12:04:00Z"
+    }
+  ],
+
+  "roles": [],
+  "clusterRoles": [],
+  "roleBindings": [],
+  "clusterRoleBindings": [],
+
+  "secrets": [
+    {
+      "uid": "secret-isolated-001",
+      "name": "database-secret",
+      "namespace": "production",
+      "labels": {},
+      "annotations": {},
+      "creationTimestamp": "2026-08-28T12:05:00Z",
+      "secretType": "Opaque"
+    }
+  ],
+
+  "configMaps": [],
+  "persistentVolumes": [],
+  "persistentVolumeClaims": []
+}

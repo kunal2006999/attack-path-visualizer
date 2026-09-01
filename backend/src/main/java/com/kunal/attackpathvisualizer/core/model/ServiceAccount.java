@@ -2,6 +2,7 @@ package com.kunal.attackpathvisualizer.core.model;
 
 import com.kunal.attackpathvisualizer.core.enums.ResourceType;
 
+import java.time.Instant;
 import java.util.Map;
 
 public class ServiceAccount extends KubernetesResource{
@@ -10,7 +11,7 @@ public class ServiceAccount extends KubernetesResource{
             String name,
             String namespace,
             Map<String, String> labels,
-            Map<String, String> annotations) {
+            Map<String, String> annotations, Instant creationTimestamp) {
 
         super(
                 uid,
@@ -18,7 +19,8 @@ public class ServiceAccount extends KubernetesResource{
                 namespace,
                 ResourceType.SERVICE_ACCOUNT,
                 labels,
-                annotations
+                annotations,
+                creationTimestamp
         );
     }
 }

@@ -1,0 +1,133 @@
+{
+  "clusterName": "multi-path-cluster",
+
+  "namespaces": [
+    {
+      "uid": "ns-multi-001",
+      "name": "production",
+      "labels": {},
+      "annotations": {},
+      "creationTimestamp": "2026-08-28T11:00:00Z"
+    }
+  ],
+
+  "nodes": [],
+
+  "pods": [
+    {
+      "uid": "pod-multi-001",
+      "name": "backend-pod",
+      "namespace": "production",
+      "labels": {
+        "app": "backend"
+      },
+      "annotations": {},
+      "creationTimestamp": "2026-08-28T11:01:00Z",
+      "serviceAccountName": "backend-sa"
+    }
+  ],
+
+  "deployments": [],
+  "replicaSets": [],
+  "services": [],
+
+  "ingresses": [],
+
+  "serviceAccounts": [
+    {
+      "uid": "sa-multi-001",
+      "name": "backend-sa",
+      "namespace": "production",
+      "labels": {},
+      "annotations": {},
+      "creationTimestamp": "2026-08-28T11:02:00Z"
+    }
+  ],
+
+  "roles": [
+    {
+      "uid": "role-multi-001",
+      "name": "secret-a-reader",
+      "namespace": "production",
+      "labels": {},
+      "annotations": {},
+      "creationTimestamp": "2026-08-28T11:03:00Z",
+      "rules": [
+        {
+          "apiGroups": [""],
+          "resources": ["secrets"],
+          "verbs": ["get"],
+          "resourceNames": ["secret-a"]
+        }
+      ]
+    },
+    {
+      "uid": "role-multi-002",
+      "name": "secret-b-reader",
+      "namespace": "production",
+      "labels": {},
+      "annotations": {},
+      "creationTimestamp": "2026-08-28T11:04:00Z",
+      "rules": [
+        {
+          "apiGroups": [""],
+          "resources": ["secrets"],
+          "verbs": ["get"],
+          "resourceNames": ["secret-b"]
+        }
+      ]
+    }
+  ],
+
+  "clusterRoles": [],
+
+  "roleBindings": [
+    {
+      "uid": "binding-multi-001",
+      "name": "backend-secret-a",
+      "namespace": "production",
+      "labels": {},
+      "annotations": {},
+      "creationTimestamp": "2026-08-28T11:05:00Z",
+      "subjectNames": ["backend-sa"],
+      "roleName": "secret-a-reader"
+    },
+    {
+      "uid": "binding-multi-002",
+      "name": "backend-secret-b",
+      "namespace": "production",
+      "labels": {},
+      "annotations": {},
+      "creationTimestamp": "2026-08-28T11:06:00Z",
+      "subjectNames": ["backend-sa"],
+      "roleName": "secret-b-reader"
+    }
+  ],
+
+  "clusterRoleBindings": [],
+
+  "secrets": [
+    {
+      "uid": "secret-multi-001",
+      "name": "secret-a",
+      "namespace": "production",
+      "labels": {},
+      "annotations": {},
+      "creationTimestamp": "2026-08-28T11:07:00Z",
+      "secretType": "Opaque"
+    },
+    {
+      "uid": "secret-multi-002",
+      "name": "secret-b",
+      "namespace": "production",
+      "labels": {},
+      "annotations": {},
+      "creationTimestamp": "2026-08-28T11:08:00Z",
+      "secretType": "Opaque"
+    }
+  ],
+
+  "configMaps": [],
+  "persistentVolumes": [],
+  "persistentVolumeClaims": []
+}

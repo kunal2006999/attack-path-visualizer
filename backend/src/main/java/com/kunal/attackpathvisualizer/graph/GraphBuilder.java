@@ -4,6 +4,7 @@ import com.kunal.attackpathvisualizer.core.model.Cluster;
 import com.kunal.attackpathvisualizer.core.model.KubernetesResource;
 import com.kunal.attackpathvisualizer.core.relation.ResourceRelationship;
 
+@org.springframework.stereotype.Component
 public class GraphBuilder {
 
     public AttackGraph build(Cluster cluster) {
@@ -21,6 +22,11 @@ public class GraphBuilder {
 
             GraphNode source = graph.getNode(sourceId);
             GraphNode target = graph.getNode(targetId);
+
+            if (source == null || target == null) {
+                // Skip relationships where nodes do not exist in the graph
+                continue;
+            }
 
             GraphEdge edge = new GraphEdge(
                     source,

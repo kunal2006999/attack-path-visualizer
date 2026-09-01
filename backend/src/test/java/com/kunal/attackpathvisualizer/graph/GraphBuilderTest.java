@@ -77,6 +77,14 @@ public class GraphBuilderTest {
                 "SECRET:production:database-secret"
         );
 
+        GraphNode role = graph.getNode(
+                "ROLE:production:backend-reader"
+        );
+
+        GraphNode roleBinding = graph.getNode(
+                "ROLE_BINDING:production:backend-binding"
+        );
+
         assertTrue(
                 graph.getOutgoingEdges(pod.getId())
                         .stream()
@@ -89,13 +97,35 @@ public class GraphBuilderTest {
         );
 
         assertTrue(
-                graph.getOutgoingEdges(pod.getId())
+                graph.getOutgoingEdges(serviceAccount.getId())
+                        .stream()
+                        .anyMatch(edge ->
+                                edge.getTarget().getId()
+                                        .equals(roleBinding.getId())
+                                        && edge.getRelationshipType()
+                                        == RelationshipType.HAS_BINDING
+                        )
+        );
+
+        assertTrue(
+                graph.getOutgoingEdges(roleBinding.getId())
+                        .stream()
+                        .anyMatch(edge ->
+                                edge.getTarget().getId()
+                                        .equals(role.getId())
+                                        && edge.getRelationshipType()
+                                        == RelationshipType.GRANTS
+                        )
+        );
+
+        assertTrue(
+                graph.getOutgoingEdges(role.getId())
                         .stream()
                         .anyMatch(edge ->
                                 edge.getTarget().getId()
                                         .equals(secret.getId())
                                         && edge.getRelationshipType()
-                                        == RelationshipType.MOUNTS
+                                        == RelationshipType.CAN_ACCESS
                         )
         );
     }

@@ -4,6 +4,7 @@ import com.kunal.attackpathvisualizer.core.model.*;
 import com.kunal.attackpathvisualizer.core.relation.RelationshipType;
 import com.kunal.attackpathvisualizer.core.relation.ResourceRelationship;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -20,8 +21,8 @@ public class MockClusterBuilder {
                 "ns-001",
                 "production",
                 Map.of("environment", "production"),
-                Map.of()
-        );
+                Map.of(),
+                Instant.parse("2026-08-25T10:00:00Z"));
 
         // -------------------------
         // ServiceAccount
@@ -32,8 +33,8 @@ public class MockClusterBuilder {
                 "backend-sa",
                 "production",
                 Map.of("app", "backend"),
-                Map.of()
-        );
+                Map.of(),
+                Instant.parse("2026-08-25T10:00:00Z"));
 
         // -------------------------
         // Pod
@@ -45,7 +46,7 @@ public class MockClusterBuilder {
                 "production",
                 Map.of("app", "backend"),
                 Map.of(),
-                "backend-sa"
+                Instant.parse("2026-08-25T10:00:00Z"), "backend-sa"
         );
 
         // -------------------------
@@ -58,7 +59,7 @@ public class MockClusterBuilder {
                 "production",
                 Map.of("app", "backend"),
                 Map.of(),
-                Map.of("app", "backend")
+                Instant.parse("2026-08-25T10:00:00Z"), Map.of("app", "backend")
         );
 
         // -------------------------
@@ -71,7 +72,7 @@ public class MockClusterBuilder {
                 "production",
                 Map.of("app", "backend"),
                 Map.of(),
-                2,
+                Instant.parse("2026-08-25T10:00:00Z"), 2,
                 Map.of("app", "backend")
         );
 
@@ -85,7 +86,7 @@ public class MockClusterBuilder {
                 "production",
                 Map.of("type", "database"),
                 Map.of(),
-                "Opaque"
+                Instant.parse("2026-08-25T10:00:00Z"), "Opaque"
         );
 
         // -------------------------
@@ -109,7 +110,7 @@ public class MockClusterBuilder {
                 "production",
                 Map.of(),
                 Map.of(),
-                List.of(secretReadRule)
+                Instant.parse("2026-08-25T10:00:00Z"), List.of(secretReadRule)
         );
 
         // -------------------------
@@ -122,7 +123,7 @@ public class MockClusterBuilder {
                 "production",
                 Map.of(),
                 Map.of(),
-                "backend-sa",
+                Instant.parse("2026-08-25T10:00:00Z"), java.util.List.of("backend-sa"),
                 "backend-reader"
         );
 
@@ -153,9 +154,25 @@ public class MockClusterBuilder {
 
         cluster.addRelationship(
                 new ResourceRelationship(
+                        backendSa,
+                        backendBinding,
+                        RelationshipType.HAS_BINDING
+                )
+        );
+
+        cluster.addRelationship(
+                new ResourceRelationship(
                         backendBinding,
                         backendRole,
-                        RelationshipType.BINDS
+                        RelationshipType.GRANTS
+                )
+        );
+
+        cluster.addRelationship(
+                new ResourceRelationship(
+                        backendRole,
+                        databaseSecret,
+                        RelationshipType.CAN_ACCESS
                 )
         );
 
@@ -164,14 +181,6 @@ public class MockClusterBuilder {
                         backendService,
                         backendPod,
                         RelationshipType.SELECTS
-                )
-        );
-
-        cluster.addRelationship(
-                new ResourceRelationship(
-                        backendPod,
-                        databaseSecret,
-                        RelationshipType.MOUNTS
                 )
         );
 

@@ -2,19 +2,24 @@ package com.kunal.attackpathvisualizer.core.model;
 
 import com.kunal.attackpathvisualizer.core.relation.ResourceRelationship;
 
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.ArrayList;
 
 public class Cluster {
     private String name;
 
-    private List<KubernetesResource> resources;
-    private List<ResourceRelationship> relationships;
+    private Map<String, KubernetesResource> resources;
+    private Set<ResourceRelationship> relationships;
 
     public Cluster(String name) {
         this.name = name;
-        this.resources = new ArrayList<>();
-        this.relationships = new ArrayList<>();
+        this.resources = new LinkedHashMap<>();
+        this.relationships = new LinkedHashSet<>();
     }
 
     public String getName() {
@@ -22,18 +27,22 @@ public class Cluster {
     }
 
     public List<KubernetesResource> getResources() {
-        return resources;
+        return List.copyOf(resources.values());
     }
 
     public List<ResourceRelationship> getRelationships() {
-        return relationships;
+        return List.copyOf(relationships);
     }
 
     public void addResource(KubernetesResource resource) {
-        resources.add(resource);
+        if (resource != null && resource.getUid() != null) {
+            resources.putIfAbsent(resource.getUid(), resource);
+        }
     }
 
     public void addRelationship(ResourceRelationship relationship) {
-        relationships.add(relationship);
+        if (relationship != null) {
+            relationships.add(relationship);
+        }
     }
 }

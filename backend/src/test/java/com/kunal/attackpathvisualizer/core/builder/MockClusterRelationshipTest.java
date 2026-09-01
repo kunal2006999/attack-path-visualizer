@@ -21,9 +21,23 @@ public class MockClusterRelationshipTest {
 
         assertTrue(hasRelationship(
                 cluster,
+                "backend-sa",
+                "backend-binding",
+                RelationshipType.HAS_BINDING
+        ));
+
+        assertTrue(hasRelationship(
+                cluster,
                 "backend-binding",
                 "backend-reader",
-                RelationshipType.BINDS
+                RelationshipType.GRANTS
+        ));
+
+        assertTrue(hasRelationship(
+                cluster,
+                "backend-reader",
+                "database-secret",
+                RelationshipType.CAN_ACCESS
         ));
 
         assertTrue(hasRelationship(
@@ -31,13 +45,6 @@ public class MockClusterRelationshipTest {
                 "backend-service",
                 "backend-pod",
                 RelationshipType.SELECTS
-        ));
-
-        assertTrue(hasRelationship(
-                cluster,
-                "backend-pod",
-                "database-secret",
-                RelationshipType.MOUNTS
         ));
     }
 

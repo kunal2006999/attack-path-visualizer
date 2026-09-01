@@ -28,4 +28,19 @@ public class GraphEdge {
     public RelationshipType getRelationshipType() {
         return relationshipType;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GraphEdge graphEdge = (GraphEdge) o;
+        return java.util.Objects.equals(source, graphEdge.source) &&
+                java.util.Objects.equals(target, graphEdge.target) &&
+                relationshipType == graphEdge.relationshipType;
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(source, target, relationshipType);
+    }
 }

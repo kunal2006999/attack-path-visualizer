@@ -28,4 +28,19 @@ public class ResourceRelationship {
     public RelationshipType getType() {
         return type;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ResourceRelationship that = (ResourceRelationship) o;
+        return java.util.Objects.equals(source, that.source) &&
+                java.util.Objects.equals(target, that.target) &&
+                type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(source, target, type);
+    }
 }
