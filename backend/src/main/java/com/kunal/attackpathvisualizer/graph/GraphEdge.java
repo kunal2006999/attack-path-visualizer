@@ -6,15 +6,18 @@ public class GraphEdge {
     private GraphNode source;
     private GraphNode target;
     private RelationshipType relationshipType;
+    private int weight;
 
     public GraphEdge(
             GraphNode source,
             GraphNode target,
-            RelationshipType relationshipType) {
+            RelationshipType relationshipType,
+            int weight) {
 
         this.source = source;
         this.target = target;
         this.relationshipType = relationshipType;
+        this.weight = weight;
     }
 
     public GraphNode getSource() {
@@ -27,6 +30,10 @@ public class GraphEdge {
 
     public RelationshipType getRelationshipType() {
         return relationshipType;
+    }
+
+    public int getWeight() {
+        return weight;
     }
 
     @Override

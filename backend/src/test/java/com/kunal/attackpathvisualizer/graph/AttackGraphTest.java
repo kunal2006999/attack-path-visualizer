@@ -70,7 +70,7 @@ class AttackGraphTest {
         GraphEdge edge = new GraphEdge(
                 pod,
                 serviceAccount,
-                RelationshipType.USES
+                RelationshipType.USES, 1
         );
 
         graph.addEdge(edge);
@@ -109,7 +109,7 @@ class AttackGraphTest {
                 new GraphEdge(
                         pod,
                         serviceAccount,
-                        RelationshipType.USES
+                        RelationshipType.USES, 1
                 )
         );
 
@@ -154,7 +154,7 @@ class AttackGraphTest {
         GraphEdge edge = new GraphEdge(
                 pod,
                 serviceAccount,
-                RelationshipType.USES
+                RelationshipType.USES, 1
         );
 
         graph.addEdge(edge);

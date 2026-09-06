@@ -31,7 +31,7 @@ public class GraphBuilder {
             GraphEdge edge = new GraphEdge(
                     source,
                     target,
-                    relationship.getType()
+                    relationship.getType(), 1
             );
 
             graph.addEdge(edge);
