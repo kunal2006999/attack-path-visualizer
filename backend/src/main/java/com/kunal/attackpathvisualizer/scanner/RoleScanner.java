@@ -2,40 +2,70 @@ package com.kunal.attackpathvisualizer.scanner;
 
 import com.kunal.attackpathvisualizer.common.model.snapshot.RbacRuleSnapshot;
 import com.kunal.attackpathvisualizer.common.model.snapshot.RoleSnapshot;
+import io.fabric8.kubernetes.api.model.rbac.PolicyRule;
 import io.fabric8.kubernetes.api.model.rbac.Role;
 import io.fabric8.kubernetes.api.model.rbac.RoleList;
-import io.fabric8.kubernetes.api.model.rbac.PolicyRule;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Scans all Kubernetes Roles across all namespaces and maps them to {@link RoleSnapshot} DTOs.
  */
 public class RoleScanner {
 
+    private static final String RESOURCE_CATEGORY = "Roles";
+
     private final KubernetesClient client;
 
     public RoleScanner(KubernetesClient client) {
+        if (client == null) {
+            throw new IllegalArgumentException("KubernetesClient must not be null");
+        }
         this.client = client;
     }
 
+    /**
+     * Fetches all Roles across all namespaces and maps them to {@link RoleSnapshot} DTOs.
+     *
+     * @throws ScannerException if the Kubernetes API call fails or returns an unusable response
+     */
     public List<RoleSnapshot> scan() {
-        RoleList roleList = client.rbac().roles().inAnyNamespace().list();
+        RoleList roleList;
+        try {
+            roleList = client.rbac().roles().inAnyNamespace().list();
+        } catch (KubernetesClientException e) {
+            throw new ScannerException(
+                    RESOURCE_CATEGORY,
+                    "Kubernetes API call failed while listing " + RESOURCE_CATEGORY
+                            + ": " + e.getMessage(),
+                    e);
+        }
 
-        if (roleList == null || roleList.getItems() == null) {
+        if (roleList == null) {
+            throw new ScannerException(
+                    RESOURCE_CATEGORY,
+                    "Kubernetes API returned a null response for " + RESOURCE_CATEGORY
+                            + "; cannot distinguish an empty cluster from an API failure",
+                    null);
+        }
+
+        if (roleList.getItems() == null) {
             return Collections.emptyList();
         }
 
-        return roleList.getItems().stream()
-                .map(this::mapToSnapshot)
-                .collect(Collectors.toList());
+        List<RoleSnapshot> results = new ArrayList<>(roleList.getItems().size());
+        for (Role role : roleList.getItems()) {
+            results.add(mapToSnapshot(role));
+        }
+        return results;
     }
 
     private RoleSnapshot mapToSnapshot(Role k8sRole) {
@@ -55,12 +85,19 @@ public class RoleScanner {
                     : Collections.emptyMap());
 
             if (metadata.getCreationTimestamp() != null) {
-                Instant timestamp = Instant.from(
-                        DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(
-                                metadata.getCreationTimestamp()
-                        )
-                );
-                snapshot.setCreationTimestamp(timestamp);
+                try {
+                    snapshot.setCreationTimestamp(Instant.from(
+                            DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(
+                                    metadata.getCreationTimestamp())));
+                } catch (DateTimeParseException e) {
+                    throw new ScannerException(
+                            RESOURCE_CATEGORY,
+                            "Failed to parse creationTimestamp '"
+                                    + metadata.getCreationTimestamp()
+                                    + "' for Role '" + metadata.getNamespace()
+                                    + "/" + metadata.getName() + "'",
+                            e);
+                }
             }
         }
 

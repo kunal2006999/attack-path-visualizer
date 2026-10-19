@@ -12,7 +12,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Tag;
 
+@Tag("integration")
 public class RoleScannerTest {
 
     private static KubernetesClient client;

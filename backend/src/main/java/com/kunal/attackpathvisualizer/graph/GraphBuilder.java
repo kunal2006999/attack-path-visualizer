@@ -9,6 +9,10 @@ public class GraphBuilder {
 
     public AttackGraph build(Cluster cluster) {
 
+        if (cluster == null) {
+            throw new IllegalArgumentException("Cluster cannot be null");
+        }
+
         AttackGraph graph = new AttackGraph();
 
         for (KubernetesResource resource: cluster.getResources()) {

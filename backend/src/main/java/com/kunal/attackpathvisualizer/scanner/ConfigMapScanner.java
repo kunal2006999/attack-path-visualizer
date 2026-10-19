@@ -4,13 +4,15 @@ import com.kunal.attackpathvisualizer.common.model.snapshot.ConfigMapSnapshot;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.ConfigMapList;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Scans all Kubernetes ConfigMaps across all namespaces and maps them to
@@ -18,22 +20,51 @@ import java.util.stream.Collectors;
  */
 public class ConfigMapScanner {
 
+    private static final String RESOURCE_CATEGORY = "ConfigMaps";
+
     private final KubernetesClient client;
 
     public ConfigMapScanner(KubernetesClient client) {
+        if (client == null) {
+            throw new IllegalArgumentException("KubernetesClient must not be null");
+        }
         this.client = client;
     }
 
+    /**
+     * Fetches all ConfigMaps across all namespaces and maps them to {@link ConfigMapSnapshot} DTOs.
+     *
+     * @throws ScannerException if the Kubernetes API call fails or returns an unusable response
+     */
     public List<ConfigMapSnapshot> scan() {
-        ConfigMapList configMapList = client.configMaps().inAnyNamespace().list();
+        ConfigMapList configMapList;
+        try {
+            configMapList = client.configMaps().inAnyNamespace().list();
+        } catch (KubernetesClientException e) {
+            throw new ScannerException(
+                    RESOURCE_CATEGORY,
+                    "Kubernetes API call failed while listing " + RESOURCE_CATEGORY
+                            + ": " + e.getMessage(),
+                    e);
+        }
 
-        if (configMapList == null || configMapList.getItems() == null) {
+        if (configMapList == null) {
+            throw new ScannerException(
+                    RESOURCE_CATEGORY,
+                    "Kubernetes API returned a null response for " + RESOURCE_CATEGORY
+                            + "; cannot distinguish an empty cluster from an API failure",
+                    null);
+        }
+
+        if (configMapList.getItems() == null) {
             return Collections.emptyList();
         }
 
-        return configMapList.getItems().stream()
-                .map(this::mapToSnapshot)
-                .collect(Collectors.toList());
+        List<ConfigMapSnapshot> results = new ArrayList<>(configMapList.getItems().size());
+        for (ConfigMap cm : configMapList.getItems()) {
+            results.add(mapToSnapshot(cm));
+        }
+        return results;
     }
 
     private ConfigMapSnapshot mapToSnapshot(ConfigMap k8sConfigMap) {
@@ -53,12 +84,19 @@ public class ConfigMapScanner {
                     : Collections.emptyMap());
 
             if (metadata.getCreationTimestamp() != null) {
-                Instant timestamp = Instant.from(
-                        DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(
-                                metadata.getCreationTimestamp()
-                        )
-                );
-                snapshot.setCreationTimestamp(timestamp);
+                try {
+                    snapshot.setCreationTimestamp(Instant.from(
+                            DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(
+                                    metadata.getCreationTimestamp())));
+                } catch (DateTimeParseException e) {
+                    throw new ScannerException(
+                            RESOURCE_CATEGORY,
+                            "Failed to parse creationTimestamp '"
+                                    + metadata.getCreationTimestamp()
+                                    + "' for ConfigMap '" + metadata.getNamespace()
+                                    + "/" + metadata.getName() + "'",
+                            e);
+                }
             }
         }
 

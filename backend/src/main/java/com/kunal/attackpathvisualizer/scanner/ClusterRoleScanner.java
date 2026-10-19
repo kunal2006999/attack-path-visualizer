@@ -6,36 +6,66 @@ import io.fabric8.kubernetes.api.model.rbac.ClusterRole;
 import io.fabric8.kubernetes.api.model.rbac.ClusterRoleList;
 import io.fabric8.kubernetes.api.model.rbac.PolicyRule;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Scans all Kubernetes ClusterRoles (cluster-scoped) and maps them to {@link ClusterRoleSnapshot} DTOs.
  */
 public class ClusterRoleScanner {
 
+    private static final String RESOURCE_CATEGORY = "ClusterRoles";
+
     private final KubernetesClient client;
 
     public ClusterRoleScanner(KubernetesClient client) {
+        if (client == null) {
+            throw new IllegalArgumentException("KubernetesClient must not be null");
+        }
         this.client = client;
     }
 
+    /**
+     * Fetches all ClusterRoles and maps them to {@link ClusterRoleSnapshot} DTOs.
+     *
+     * @throws ScannerException if the Kubernetes API call fails or returns an unusable response
+     */
     public List<ClusterRoleSnapshot> scan() {
-        ClusterRoleList clusterRoleList = client.rbac().clusterRoles().list();
+        ClusterRoleList clusterRoleList;
+        try {
+            clusterRoleList = client.rbac().clusterRoles().list();
+        } catch (KubernetesClientException e) {
+            throw new ScannerException(
+                    RESOURCE_CATEGORY,
+                    "Kubernetes API call failed while listing " + RESOURCE_CATEGORY
+                            + ": " + e.getMessage(),
+                    e);
+        }
 
-        if (clusterRoleList == null || clusterRoleList.getItems() == null) {
+        if (clusterRoleList == null) {
+            throw new ScannerException(
+                    RESOURCE_CATEGORY,
+                    "Kubernetes API returned a null response for " + RESOURCE_CATEGORY
+                            + "; cannot distinguish an empty cluster from an API failure",
+                    null);
+        }
+
+        if (clusterRoleList.getItems() == null) {
             return Collections.emptyList();
         }
 
-        return clusterRoleList.getItems().stream()
-                .map(this::mapToSnapshot)
-                .collect(Collectors.toList());
+        List<ClusterRoleSnapshot> results = new ArrayList<>(clusterRoleList.getItems().size());
+        for (ClusterRole cr : clusterRoleList.getItems()) {
+            results.add(mapToSnapshot(cr));
+        }
+        return results;
     }
 
     private ClusterRoleSnapshot mapToSnapshot(ClusterRole k8sClusterRole) {
@@ -57,12 +87,18 @@ public class ClusterRoleScanner {
                     : Collections.emptyMap());
 
             if (metadata.getCreationTimestamp() != null) {
-                Instant timestamp = Instant.from(
-                        DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(
-                                metadata.getCreationTimestamp()
-                        )
-                );
-                snapshot.setCreationTimestamp(timestamp);
+                try {
+                    snapshot.setCreationTimestamp(Instant.from(
+                            DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(
+                                    metadata.getCreationTimestamp())));
+                } catch (DateTimeParseException e) {
+                    throw new ScannerException(
+                            RESOURCE_CATEGORY,
+                            "Failed to parse creationTimestamp '"
+                                    + metadata.getCreationTimestamp()
+                                    + "' for ClusterRole '" + metadata.getName() + "'",
+                            e);
+                }
             }
         }
 

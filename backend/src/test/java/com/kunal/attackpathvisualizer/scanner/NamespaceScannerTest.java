@@ -12,7 +12,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.junit.jupiter.api.Tag;
 
+@Tag("integration")
 public class NamespaceScannerTest {
 
     private static KubernetesClient client;

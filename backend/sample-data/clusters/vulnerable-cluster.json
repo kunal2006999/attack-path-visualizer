@@ -108,6 +108,9 @@
       "annotations": {},
       "creationTimestamp": "2026-08-28T10:09:00Z",
       "subjectNames": ["backend-sa"],
+      "subjects": [
+        { "kind": "ServiceAccount", "name": "backend-sa", "namespace": "production" }
+      ],
       "clusterRoleName": "cluster-admin"
     }
   ],

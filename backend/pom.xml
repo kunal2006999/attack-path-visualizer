@@ -15,6 +15,7 @@
 	<description>Kubernetes Attack Path Visualizer Backend</description>
 	<properties>
 		<java.version>21</java.version>
+		<excludedGroups>integration</excludedGroups>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -121,5 +122,14 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>integration</id>
+			<properties>
+				<excludedGroups>none</excludedGroups>
+			</properties>
+		</profile>
+	</profiles>
 
 </project>

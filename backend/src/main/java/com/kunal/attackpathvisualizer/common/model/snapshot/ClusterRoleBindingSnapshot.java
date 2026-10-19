@@ -6,12 +6,16 @@ import java.util.List;
 public class ClusterRoleBindingSnapshot extends ResourceSnapshot {
 
     private List<String> subjectNames;
+    private List<SubjectSnapshot> subjects;
     private String clusterRoleName;
 
     public ClusterRoleBindingSnapshot() {}
 
     public List<String> getSubjectNames() { return subjectNames; }
     public void setSubjectNames(List<String> subjectNames) { this.subjectNames = subjectNames; }
+
+    public List<SubjectSnapshot> getSubjects() { return subjects; }
+    public void setSubjects(List<SubjectSnapshot> subjects) { this.subjects = subjects; }
 
     public String getClusterRoleName() { return clusterRoleName; }
     public void setClusterRoleName(String clusterRoleName) { this.clusterRoleName = clusterRoleName; }
