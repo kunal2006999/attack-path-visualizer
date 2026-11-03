@@ -478,14 +478,16 @@ public class AttackPathAnalyzer {
         if (resource instanceof RoleBinding rb) {
             /*
              * A RoleBinding delegates its effective permissions to the
-             * referenced Role or ClusterRole. Inspect those rules.
+             * referenced Role or ClusterRole. Roles are namespaced, so a
+             * referenced Role must live in the binding's own namespace.
+             * ClusterRoles are cluster-scoped and matched by name only.
              */
             if ("ClusterRole".equals(rb.getRoleKind())) {
                 ClusterRole cr = resourceIndex.getAllResources()
                         .stream()
                         .filter(r -> r instanceof ClusterRole)
                         .map(r -> (ClusterRole) r)
-                        .filter(r -> rb.getRoleName().equals(r.getName()))
+                        .filter(r -> Objects.equals(rb.getRoleName(), r.getName()))
                         .findFirst()
                         .orElse(null);
                 return cr != null ? cr.getRules() : null;
@@ -494,7 +496,8 @@ public class AttackPathAnalyzer {
                         .stream()
                         .filter(r -> r instanceof Role)
                         .map(r -> (Role) r)
-                        .filter(r -> rb.getRoleName().equals(r.getName()))
+                        .filter(r -> Objects.equals(rb.getNamespace(), r.getNamespace())
+                                && Objects.equals(rb.getRoleName(), r.getName()))
                         .findFirst()
                         .orElse(null);
                 return role != null ? role.getRules() : null;
@@ -506,7 +509,7 @@ public class AttackPathAnalyzer {
                     .stream()
                     .filter(r -> r instanceof ClusterRole)
                     .map(r -> (ClusterRole) r)
-                    .filter(r -> crb.getClusterRoleName().equals(r.getName()))
+                    .filter(r -> Objects.equals(crb.getClusterRoleName(), r.getName()))
                     .findFirst()
                     .orElse(null);
             return cr != null ? cr.getRules() : null;
