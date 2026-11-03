@@ -1,0 +1,217 @@
+{
+  "clusterName" : "vulnerable-cluster",
+  "generatedAt" : "2026-11-03T21:54:09.124569432Z",
+  "totalFindings" : 2,
+  "severityCounts" : {
+    "LOW" : 0,
+    "MEDIUM" : 1,
+    "HIGH" : 0,
+    "CRITICAL" : 1
+  },
+  "findings" : [ {
+    "id" : "0011fba1-4f0f-480a-9a4e-9078649b62e7",
+    "title" : "Pod can reach Secret: database-secret",
+    "description" : "The modeled graph contains a directed path from Pod 'backend-pod' to Secret 'database-secret', ending with a CAN_ACCESS edge from 'backend-cluster-admin'. This indicates modeled Secret access according to the collected cluster relationships and RBAC rules.",
+    "entryPoint" : {
+      "id" : "POD:production:backend-pod",
+      "resourceId" : "pod-vuln-001",
+      "type" : "POD",
+      "name" : "backend-pod",
+      "namespace" : "production"
+    },
+    "target" : {
+      "id" : "SECRET:production:database-secret",
+      "resourceId" : "secret-vuln-001",
+      "type" : "SECRET",
+      "name" : "database-secret",
+      "namespace" : "production"
+    },
+    "attackPath" : [ {
+      "id" : "POD:production:backend-pod",
+      "resourceId" : "pod-vuln-001",
+      "type" : "POD",
+      "name" : "backend-pod",
+      "namespace" : "production"
+    }, {
+      "id" : "SERVICE_ACCOUNT:production:backend-sa",
+      "resourceId" : "sa-vuln-001",
+      "type" : "SERVICE_ACCOUNT",
+      "name" : "backend-sa",
+      "namespace" : "production"
+    }, {
+      "id" : "CLUSTER_ROLE_BINDING:backend-cluster-admin",
+      "resourceId" : "cluster-role-binding-vuln-001",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "backend-cluster-admin",
+      "namespace" : null
+    }, {
+      "id" : "SECRET:production:database-secret",
+      "resourceId" : "secret-vuln-001",
+      "type" : "SECRET",
+      "name" : "database-secret",
+      "namespace" : "production"
+    } ],
+    "riskScore" : 90,
+    "severity" : "CRITICAL",
+    "scoreFactors" : [ {
+      "name" : "SECRET_SENSITIVITY",
+      "points" : 30,
+      "reason" : "Estimated Secret sensitivity based on its type, name, labels, and namespace."
+    }, {
+      "name" : "PERMISSION_SCOPE",
+      "points" : 30,
+      "reason" : "The access edge originates from a ClusterRoleBinding, which grants permissions cluster-wide to the referenced ClusterRole's rules."
+    }, {
+      "name" : "WILDCARD_PERMISSION",
+      "points" : 25,
+      "reason" : "At least one RBAC rule grants wildcard apiGroups (*), resources (*), and verbs (*), giving unrestricted access."
+    }, {
+      "name" : "ATTACK_PATH_LENGTH",
+      "points" : 5,
+      "reason" : "The modeled path contains 3 edge(s). Shorter paths indicate more direct access."
+    } ],
+    "recommendation" : "Review the ClusterRoleBinding's subjects and referenced ClusterRole. Remove unnecessary Secret permissions and restrict access to the required subjects."
+  }, {
+    "id" : "5d7515c4-6c05-487e-a2c7-2c5281e3c719",
+    "title" : "Pod can reach Secret: database-secret",
+    "description" : "The modeled graph contains a directed path from Pod 'backend-pod' to Secret 'database-secret', ending with a CAN_ACCESS edge from 'secret-reader'. This indicates modeled Secret access according to the collected cluster relationships and RBAC rules.",
+    "entryPoint" : {
+      "id" : "POD:production:backend-pod",
+      "resourceId" : "pod-vuln-001",
+      "type" : "POD",
+      "name" : "backend-pod",
+      "namespace" : "production"
+    },
+    "target" : {
+      "id" : "SECRET:production:database-secret",
+      "resourceId" : "secret-vuln-001",
+      "type" : "SECRET",
+      "name" : "database-secret",
+      "namespace" : "production"
+    },
+    "attackPath" : [ {
+      "id" : "POD:production:backend-pod",
+      "resourceId" : "pod-vuln-001",
+      "type" : "POD",
+      "name" : "backend-pod",
+      "namespace" : "production"
+    }, {
+      "id" : "SERVICE_ACCOUNT:production:backend-sa",
+      "resourceId" : "sa-vuln-001",
+      "type" : "SERVICE_ACCOUNT",
+      "name" : "backend-sa",
+      "namespace" : "production"
+    }, {
+      "id" : "ROLE_BINDING:production:backend-secret-reader",
+      "resourceId" : "role-binding-vuln-001",
+      "type" : "ROLE_BINDING",
+      "name" : "backend-secret-reader",
+      "namespace" : "production"
+    }, {
+      "id" : "ROLE:production:secret-reader",
+      "resourceId" : "role-vuln-001",
+      "type" : "ROLE",
+      "name" : "secret-reader",
+      "namespace" : "production"
+    }, {
+      "id" : "SECRET:production:database-secret",
+      "resourceId" : "secret-vuln-001",
+      "type" : "SECRET",
+      "name" : "database-secret",
+      "namespace" : "production"
+    } ],
+    "riskScore" : 43,
+    "severity" : "MEDIUM",
+    "scoreFactors" : [ {
+      "name" : "SECRET_SENSITIVITY",
+      "points" : 30,
+      "reason" : "Estimated Secret sensitivity based on its type, name, labels, and namespace."
+    }, {
+      "name" : "PERMISSION_SCOPE",
+      "points" : 10,
+      "reason" : "The access edge originates from a namespaced Role. Its rules are scoped to the Role's namespace."
+    }, {
+      "name" : "WILDCARD_PERMISSION",
+      "points" : 0,
+      "reason" : "No wildcard permissions detected; rules use explicit apiGroups, resources, and verbs."
+    }, {
+      "name" : "ATTACK_PATH_LENGTH",
+      "points" : 3,
+      "reason" : "The modeled path contains 4 edge(s). Shorter paths indicate more direct access."
+    } ],
+    "recommendation" : "Review the Role's rules, especially permissions to get, list, or watch Secrets. Remove unnecessary permissions and restrict access to the required resources."
+  } ],
+  "criticalResources" : [ {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:backend-cluster-admin",
+      "resourceId" : "cluster-role-binding-vuln-001",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "backend-cluster-admin",
+      "namespace" : null
+    },
+    "riskScore" : 40,
+    "affectedSecretCount" : 1,
+    "findingCount" : 1,
+    "reason" : "Appears in 1 security finding(s); Can reach 1 Secret node(s); Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "POD:production:backend-pod",
+      "resourceId" : "pod-vuln-001",
+      "type" : "POD",
+      "name" : "backend-pod",
+      "namespace" : "production"
+    },
+    "riskScore" : 40,
+    "affectedSecretCount" : 1,
+    "findingCount" : 2,
+    "reason" : "Appears in 2 security finding(s); Can reach 1 Secret node(s)"
+  }, {
+    "resource" : {
+      "id" : "SERVICE_ACCOUNT:production:backend-sa",
+      "resourceId" : "sa-vuln-001",
+      "type" : "SERVICE_ACCOUNT",
+      "name" : "backend-sa",
+      "namespace" : "production"
+    },
+    "riskScore" : 40,
+    "affectedSecretCount" : 1,
+    "findingCount" : 2,
+    "reason" : "Appears in 2 security finding(s); Can reach 1 Secret node(s)"
+  }, {
+    "resource" : {
+      "id" : "SECRET:production:database-secret",
+      "resourceId" : "secret-vuln-001",
+      "type" : "SECRET",
+      "name" : "database-secret",
+      "namespace" : "production"
+    },
+    "riskScore" : 30,
+    "affectedSecretCount" : 0,
+    "findingCount" : 2,
+    "reason" : "Appears in 2 security finding(s)"
+  }, {
+    "resource" : {
+      "id" : "ROLE:production:secret-reader",
+      "resourceId" : "role-vuln-001",
+      "type" : "ROLE",
+      "name" : "secret-reader",
+      "namespace" : "production"
+    },
+    "riskScore" : 25,
+    "affectedSecretCount" : 1,
+    "findingCount" : 1,
+    "reason" : "Appears in 1 security finding(s); Can reach 1 Secret node(s)"
+  }, {
+    "resource" : {
+      "id" : "ROLE_BINDING:production:backend-secret-reader",
+      "resourceId" : "role-binding-vuln-001",
+      "type" : "ROLE_BINDING",
+      "name" : "backend-secret-reader",
+      "namespace" : "production"
+    },
+    "riskScore" : 25,
+    "affectedSecretCount" : 1,
+    "findingCount" : 1,
+    "reason" : "Appears in 1 security finding(s); Can reach 1 Secret node(s)"
+  } ]
+}
