@@ -17,3 +17,17 @@ Thumbs.db
 
 ### VS Code ###
 .vscode/
+
+
+### Project-specific ###
+# Empty placeholder directories
+/deployment/
+/docs/
+/frontend/
+/scripts/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Generated reports and temporary files
