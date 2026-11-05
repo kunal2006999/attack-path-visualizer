@@ -56,8 +56,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  */
 class EndToEndSecurityAnalysisTest {
 
-    private static final Path FIXTURE =
-            Path.of("sample-data", "clusters", "vulnerable-cluster.json");
+    private static final Path FIXTURE = Path.of("..", "sample-data", "clusters", "vulnerable-cluster.json");
     private static final String URL = "/api/security/reports/export";
 
     // ---- expected node ids ----

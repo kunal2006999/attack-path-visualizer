@@ -26,7 +26,7 @@ class ClusterGraphPipelineTest {
             new GraphBuilder());
 
     private ClusterGraphPipeline.PipelineResult load(String file) throws IOException {
-        return pipeline.buildFromJson(Path.of("sample-data", "clusters", file));
+        return pipeline.buildFromJson(Path.of("..", "sample-data", "clusters", file));
     }
 
     @Test

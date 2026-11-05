@@ -42,6 +42,18 @@ public class GlobalExceptionHandler {
                 request);
     }
 
+    @ExceptionHandler(LiveClusterScanException.class)
+    public ResponseEntity<ApiError> handleLiveClusterScanFailure(
+            LiveClusterScanException ex,
+            HttpServletRequest request) {
+
+        return build(
+                HttpStatus.BAD_GATEWAY,
+                ex.getMessage(),
+                request
+        );
+    }
+
     private ResponseEntity<ApiError> build(
             HttpStatus status,
             String message,

@@ -43,7 +43,7 @@ class SecurityReportExportServiceTest {
                     new SecurityReportExporter());
 
     private ClusterSnapshot load(String file) throws IOException {
-        return parser.parse(Path.of("sample-data", "clusters", file));
+        return parser.parse(Path.of("..", "sample-data", "clusters", file));
     }
 
     @Test

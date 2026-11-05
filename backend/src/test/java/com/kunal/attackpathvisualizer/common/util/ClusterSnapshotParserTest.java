@@ -13,6 +13,7 @@ class ClusterSnapshotParserTest {
     void shouldParseSimpleClusterJson() throws IOException {
 
         Path file = Path.of(
+                "..",
                 "sample-data",
                 "clusters",
                 "simple-cluster.json"

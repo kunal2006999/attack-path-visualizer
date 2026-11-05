@@ -40,7 +40,7 @@ class SecurityAnalysisServiceIntegrationTest {
             throws IOException {
 
         var pipelineResult = pipeline.buildFromJson(
-                Path.of("sample-data", "clusters", filename)
+                Path.of("..", "sample-data", "clusters", filename)
         );
 
         return securityAnalysisService.analyze(pipelineResult);

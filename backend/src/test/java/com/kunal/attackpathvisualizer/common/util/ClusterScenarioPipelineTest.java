@@ -102,6 +102,7 @@ class ClusterScenarioPipelineTest {
     private AttackGraph buildGraph(String fileName) {
 
         Path file = Path.of(
+                "..",
                 "sample-data",
                 "clusters",
                 fileName

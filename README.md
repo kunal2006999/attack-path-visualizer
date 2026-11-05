@@ -1,572 +1,399 @@
 # Kubernetes Attack Path Visualizer
 
-**Discover Kubernetes security risks through graph-based attack path analysis.**
+**Discover potential Kubernetes security risks through graph-based attack-path analysis.**
 
-Kubernetes Attack Path Visualizer is a tool designed to analyze Kubernetes cluster security by scanning resources, mapping their relationships into a graph, and identifying potential attack paths.
+Kubernetes Attack Path Visualizer is a Java/Spring Boot backend that collects Kubernetes resource information, models relationships between resources as a directed graph, and analyzes that graph to identify potential paths from workloads and identities to sensitive resources.
 
-It evaluates resource configurations and permissions to detect security risks, analyzes how an attacker could potentially move through connected resources, and generates structured security reports containing findings, severity levels, risk scores, attack paths, and remediation recommendations.
+It produces structured security reports containing findings, severity classifications, heuristic risk scores, attack paths, critical resources, and remediation recommendations.
+
+> **Project status:** Core backend implementation is complete. The project supports snapshot-based analysis and live Kubernetes scanning. It currently provides REST APIs; a graphical frontend and persistent report storage are not included.
+
+---
+
+## Contents
+
+- [Key Features](#key-features)
+- [How It Works](#how-it-works)
+- [Architecture](#architecture)
+- [Supported Kubernetes Resources](#supported-kubernetes-resources)
+- [Graph Model](#graph-model)
+- [Security Analysis](#security-analysis)
+- [Risk Scoring](#risk-scoring)
+- [Technology Stack](#technology-stack)
+- [Repository Structure](#repository-structure)
+- [Prerequisites](#prerequisites)
+- [Installation and Setup](#installation-and-setup)
+- [Running the Application](#running-the-application)
+- [API Documentation](#api-documentation)
+- [Sample Data](#sample-data)
+- [Testing](#testing)
+- [Security Considerations](#security-considerations)
+- [Limitations](#limitations)
+- [Future Improvements](#future-improvements)
+
+---
 
 ## Key Features
 
-- **Kubernetes Resource Scanning:** Scans 10 categories of Kubernetes resources using the Fabric8 Kubernetes Client to collect cluster resource information.
-
-- **Relationship Graph Construction:** Builds a graph of Kubernetes resources and their relationships, representing how different components interact within a cluster.
-
-- **Graph-Based Attack Path Analysis:** Identifies potential attack paths by analyzing connections between workloads, identities, permissions, and sensitive resources.
-
-- **RBAC Security Analysis:** Analyzes Roles, ClusterRoles, RoleBindings, and ClusterRoleBindings to identify excessive permissions and potential privilege escalation risks.
-
-- **Risk Scoring:** Calculates numerical risk scores based on secret sensitivity, permission scope, wildcard permissions, and attack path length.
-
-- **Critical Resource Identification:** Identifies resources that represent significant security risks based on their relationships and exposure within the cluster.
-
-- **Security Findings and Recommendations:** Generates structured security findings with severity classifications, risk scores, attack paths, and remediation recommendations.
-
-- **JSON Security Report Export:** Provides a REST API to export security analysis results as structured JSON reports.
-
+- **Live Kubernetes scanning:** Connects to the Kubernetes cluster configured in the current kubeconfig context using the Fabric8 Kubernetes Client.
+- **Snapshot-based analysis:** Accepts a JSON cluster snapshot and analyzes it without requiring a live cluster.
+- **Resource relationship modeling:** Converts collected resources and their relationships into a directed attack graph.
+- **Graph algorithms:** Includes BFS, DFS, Dijkstra's shortest-path analysis, cycle detection, reachability analysis, blast-radius analysis, and attack-path reconstruction.
+- **RBAC relationship analysis:** Models Roles, ClusterRoles, RoleBindings, ClusterRoleBindings, and their relationships with subjects and workloads.
+- **Potential attack-path detection:** Identifies modeled paths connecting workloads and identities to sensitive resources such as Kubernetes Secrets.
+- **Risk scoring:** Calculates heuristic scores using secret sensitivity, permission scope, wildcard permissions, and attack-path length.
+- **Critical resource identification:** Highlights resources that participate in findings or are connected to sensitive resources.
+- **Remediation recommendations:** Produces recommendations alongside security findings.
+- **JSON report export:** Returns reports through REST endpoints and supports downloadable JSON attachments.
 
 ## How It Works
 
-Kubernetes Attack Path Visualizer follows a multi-stage analysis pipeline to transform Kubernetes cluster resources into actionable security insights.
+The analysis pipeline transforms Kubernetes resource information into a structured security report:
 
-1. **Cluster Scanning:** Connects to a Kubernetes cluster using the Fabric8 Kubernetes Client and collects information about supported resources through dedicated scanners.
+1. **Resource collection:** Dedicated scanners retrieve supported Kubernetes resources.
+2. **Snapshot assembly:** The collected resources are combined into a `ClusterSnapshot`.
+3. **Validation and mapping:** The snapshot is validated and mapped into the project's domain model.
+4. **Graph construction:** Resources become graph nodes and their modeled relationships become directed edges.
+5. **Graph analysis:** Graph algorithms analyze reachability, paths, cycles, and potential blast radius.
+6. **Security analysis:** The security engine evaluates modeled access relationships and identifies potential findings.
+7. **Risk assessment:** Findings receive heuristic risk scores and severity classifications.
+8. **Report generation:** Findings, attack paths, critical resources, and recommendations are assembled into a JSON report.
 
-2. **Snapshot Assembly:** Combines the collected resource information into a unified cluster snapshot, providing a structured representation of the cluster.
-
-3. **Graph Construction:** Converts the cluster snapshot into an attack graph, representing Kubernetes resources as nodes and their relationships as directed edges.
-
-4. **Attack Path Analysis:** Applies graph algorithms to analyze resource connectivity, discover potential attack paths, evaluate reachability, and assess the impact of compromised resources.
-
-5. **Security Analysis:** Evaluates permissions, sensitive resources, and resource relationships to identify security weaknesses and generate findings.
-
-6. **Risk Assessment:** Calculates risk scores for identified findings and assigns severity levels based on the scoring methodology.
-
-7. **Report Generation:** Aggregates findings, attack paths, critical resources, and remediation recommendations into a structured security report.
-
-8. **Report Export:** Exposes the generated security report through a REST API, allowing it to be retrieved as JSON or downloaded as an attachment.
-
-
-### Analysis Pipeline
+### Analysis pipeline
 
 ```mermaid
 flowchart TD
     A[Kubernetes Cluster] --> B[Resource Scanners]
     B --> C[Cluster Snapshot]
-    C --> D[Graph Construction]
-    D --> E[Attack Graph]
-
-    E --> F[Attack Path Analysis]
-    E --> G[Security Analysis]
-
-    F --> H[Risk Assessment]
-    G --> H
-
-    H --> I[Security Report]
-    I --> J[REST API / JSON Export]
+    C --> D[Validation and Domain Mapping]
+    D --> E[Graph Construction]
+    E --> F[Attack Graph]
+    F --> G[Graph Analysis]
+    F --> H[Security Analysis]
+    G --> I[Risk Assessment]
+    H --> I
+    I --> J[Security Report]
+    J --> K[REST API / JSON Export]
 ```
 
-## Architecture Overview
+Snapshot-based analysis enters the pipeline at the `Cluster Snapshot` stage and does not require a live Kubernetes connection.
 
-The project follows a modular architecture that separates Kubernetes resource collection, graph construction, security analysis, and report generation.
+---
 
-The backend is organized into the following major components:
+## Architecture
+
+The backend separates resource collection, graph construction, analysis, and report generation into dedicated packages.
 
 | Component | Responsibility |
 |---|---|
-| **Kubernetes Scanners** | Collect information about supported Kubernetes resources using the Fabric8 Kubernetes Client. |
-| **Snapshot Layer** | Represents collected cluster resources in structured snapshot objects. |
-| **Graph Engine** | Constructs and manages the resource relationship graph using nodes and directed edges. |
-| **Analysis Engine** | Performs graph traversal, attack-path discovery, reachability analysis, and security risk evaluation. |
-| **Security Analysis** | Generates security findings, calculates risk scores, identifies critical resources, and produces recommendations. |
-| **Report Export Layer** | Converts security analysis results into structured JSON responses and exposes report export endpoints through REST APIs. |
+| `scanner` | Reads supported resources from Kubernetes and assembles cluster snapshots. |
+| `common.model.snapshot` | Defines snapshot representations used by parsing and scanning. |
+| `common.util` | Parses cluster snapshot JSON. |
+| `common.exception` | Defines application exceptions and centralized REST error handling. |
+| `core.model` | Represents Kubernetes resources in the domain model. |
+| `core.builder` | Maps snapshots and builds resource relationships. |
+| `core.pipeline` | Coordinates validation, mapping, and graph construction. |
+| `graph` | Provides graph nodes, edges, construction, and export functionality. |
+| `analysis` | Implements graph traversal and path-analysis algorithms. |
+| `security` | Performs attack-path security analysis, risk scoring, critical-resource analysis, and recommendation generation. |
+| `report` | Exposes report APIs and serializes reports to JSON. |
 
-The architecture is designed to keep resource scanning, graph processing, security analysis, and report generation independent and maintainable.
+### Supported Kubernetes resources
 
+The live scanner currently collects these 10 resource categories:
 
-## Supported Kubernetes Resources
-
-The tool currently scans 10 categories of Kubernetes resources using dedicated scanners built with the Fabric8 Kubernetes Client.
-
-| Category | Kubernetes Resource | Description |
+| Category | Kubernetes resource | Purpose |
 |---|---|---|
-| Core | Namespace | Discovers namespaces within the cluster. |
-| Core | Pod | Collects workload information, including associated service accounts. |
-| Core | Service | Identifies services and their relationships with workloads. |
-| Identity | ServiceAccount | Collects service account identities used by workloads. |
-| RBAC | Role | Retrieves namespace-scoped permission rules. |
-| RBAC | ClusterRole | Retrieves cluster-level permission rules. |
-| RBAC | RoleBinding | Identifies bindings between subjects and Roles or ClusterRoles. |
-| RBAC | ClusterRoleBinding | Identifies cluster-wide role bindings. |
-| Configuration | Secret | Collects Secret metadata and sensitivity-related information without capturing Secret values. |
-| Configuration | ConfigMap | Collects ConfigMap resource information and metadata. |
+| Core | Namespace | Discovers namespaces. |
+| Core | Pod | Collects Pod information, including its associated ServiceAccount. |
+| Core | Service | Collects Service information and modeled workload relationships. |
+| Identity | ServiceAccount | Collects workload identities. |
+| RBAC | Role | Collects namespace-scoped permission rules. |
+| RBAC | ClusterRole | Collects cluster-level permission rules. |
+| RBAC | RoleBinding | Collects bindings between subjects and Roles or ClusterRoles. |
+| RBAC | ClusterRoleBinding | Collects cluster-wide role bindings. |
+| Configuration | Secret | Collects Secret metadata for analysis. |
+| Configuration | ConfigMap | Collects ConfigMap information and metadata. |
 
-Each resource category has a dedicated scanner responsible for retrieving and converting Kubernetes resources into structured snapshot representations.
+The repository's snapshot/domain models may represent additional Kubernetes resource types. The table above describes the resource categories currently collected by the live scanner.
 
-These snapshots are subsequently used by the graph construction and security analysis components.
+---
 
-## Graph Model and Relationship Types
+## Graph Model
 
-The tool represents Kubernetes cluster resources as a directed graph, called the **Attack Graph**.
+The project represents modeled Kubernetes resources as a directed graph called the **Attack Graph**.
 
-The graph consists of two primary components:
+- **Nodes** represent resources such as Pods, Services, ServiceAccounts, Roles, RoleBindings, and Secrets.
+- **Edges** represent modeled relationships between resources. Edges have a direction and a relationship type.
+- **Adjacency-list representation** supports graph traversal and relationship analysis.
 
-- **Nodes:** Represent Kubernetes resources such as Pods, Services, ServiceAccounts, Roles, RoleBindings, Secrets, and other supported resource types.
-- **Edges:** Represent relationships and interactions between resources. Each edge has a direction and a relationship type.
+### Relationship types
 
-This graph-based representation allows the analysis engine to understand how resources are connected and identify potential paths through which an attacker could move within a cluster.
-
-### Graph Structure
-
-The graph is built using an adjacency-list representation, supporting efficient traversal and relationship analysis.
-
-Each graph node represents a Kubernetes resource, while directed edges describe relationships between resources.
-
-### Relationship Types
-
-The graph engine supports the following relationship types:
+The graph engine defines relationship types including:
 
 | Relationship | Description |
 |---|---|
-| `USES` | Represents a resource using another resource. |
-| `BINDS` | Represents a binding connecting a subject to a role. |
-| `SELECTS` | Represents a Service selecting workloads through label selectors. |
-| `ROUTES_TO` | Represents traffic routing towards another resource. |
-| `MOUNTS` | Represents a workload mounting a resource. |
-| `EXPOSES` | Represents a resource exposing another resource. |
-| `CAN_ACCESS` | Represents an access relationship between resources. |
-| `CAN_IMPERSONATE` | Represents the ability to impersonate another identity. |
-| `DEPENDS_ON` | Represents a dependency between resources. |
-| `OWNS` | Represents an ownership relationship. |
-| `HAS_BINDING` | Represents a resource having an associated binding. |
-| `GRANTS` | Represents a role or permission granting access to another resource. |
+| `USES` | A resource uses another resource. |
+| `BINDS` | A binding connects a subject to a role. |
+| `SELECTS` | A Service selects workloads through label selectors. |
+| `ROUTES_TO` | Traffic is modeled as routing towards another resource. |
+| `MOUNTS` | A workload mounts a resource. |
+| `EXPOSES` | A resource exposes another resource. |
+| `CAN_ACCESS` | A modeled access relationship between resources. |
+| `CAN_IMPERSONATE` | A modeled ability to impersonate another identity. |
+| `DEPENDS_ON` | A dependency between resources. |
+| `OWNS` | An ownership relationship. |
+| `HAS_BINDING` | A resource has an associated binding. |
+| `GRANTS` | A role or permission grants modeled access. |
 
-### Attack Path Representation
+Not every relationship type is necessarily produced by every scan. The graph contains relationships that can be derived from the collected resource data and implemented modeling rules.
 
-Attack paths are represented as sequences of connected graph nodes and edges.
+### Example attack path
 
-For example, a potential attack path could be:
+```text
+Pod
+ |
+ v
+ServiceAccount
+ |
+ v
+ClusterRoleBinding
+ |
+ v
+Secret
+```
 
-`Pod → ServiceAccount → ClusterRoleBinding → Secret`
+This example represents a modeled path in which a workload's ServiceAccount is bound to permissions that may allow access to a Secret.
 
-Such a path illustrates how a compromised workload identity may be connected to sensitive resources through Kubernetes RBAC relationships.
+---
 
-The graph provides the foundation for attack-path discovery, reachability analysis, risk assessment, and critical resource identification.
+## Security Analysis
 
+The security analysis engine evaluates relationships across the graph rather than treating each resource in isolation.
 
-## Security Analysis and Attack-Path Detection
-
-The tool uses graph-based analysis to identify potential attack paths and evaluate security risks within a Kubernetes cluster.
-
-Rather than examining resources in isolation, the analysis engine evaluates how workloads, identities, permissions, and sensitive resources are connected through the attack graph.
-
-### Graph Analysis Algorithms
-
-The graph engine implements several algorithms to analyze resource connectivity and potential attack paths.
+### Graph algorithms
 
 | Algorithm | Purpose |
 |---|---|
-| Breadth-First Search (BFS) | Traverses the graph level by level to explore reachable resources. |
-| Depth-First Search (DFS) | Explores graph paths by following connections as deeply as possible. |
-| Dijkstra's Algorithm | Calculates shortest weighted paths through the graph. |
-| Cycle Detection | Identifies cycles in resource relationships. |
-| Blast Radius Analysis | Evaluates the resources reachable from a given starting point. |
-| Attack Path Finder | Identifies and reconstructs potential paths between workloads and sensitive resources. |
+| Breadth-First Search (BFS) | Traverses the graph level by level. |
+| Depth-First Search (DFS) | Explores connected paths deeply before backtracking. |
+| Dijkstra's algorithm | Finds shortest weighted paths. |
+| Cycle detection | Identifies cycles in resource relationships. |
+| Reachability analysis | Determines which resources can be reached from a starting node. |
+| Blast-radius analysis | Evaluates the set of resources reachable from a starting point. |
+| Attack-path finder | Finds and reconstructs potential paths between selected resource types. |
 
-### Attack Path Discovery
+### Security analysis components
 
-The attack path analyzer examines relationships between Kubernetes resources to identify potential routes from workloads to sensitive resources.
+- **Attack Path Analyzer:** Evaluates potential paths through the resource graph.
+- **Critical Resource Analyzer:** Identifies resources that appear in findings or have modeled connections to sensitive resources.
+- **Risk Scorer:** Calculates a numerical risk score from configured scoring factors.
+- **Secret Sensitivity Classifier:** Estimates Secret sensitivity using available metadata and naming information.
+- **Recommendation Engine:** Generates remediation guidance for identified findings.
 
-For example, a compromised Pod may be associated with a ServiceAccount that is connected to permissions through a RoleBinding or ClusterRoleBinding. Those permissions may provide access to sensitive resources such as Secrets.
+### Interpreting findings
 
-An illustrative attack path:
+A finding such as `Pod can reach Secret` means the collected resource data and graph rules produced a directed path representing potential access. It does **not** prove that an attacker has exploited the path or that a running process has successfully retrieved the Secret.
 
-`Pod → ServiceAccount → ClusterRoleBinding → Secret`
+Findings should be reviewed against the actual cluster configuration, Kubernetes authorization behavior, and the application's threat model.
 
-The analyzer evaluates these connections and uses the resulting paths as part of the security risk assessment.
+---
 
-### Security Analysis Components
+## Risk Scoring
 
-The security analysis engine includes the following components:
-
-- **Attack Path Analyzer:** Evaluates potential attack paths through the resource graph.
-- **Critical Resource Analyzer:** Identifies resources with significant security exposure.
-- **Risk Scorer:** Calculates numerical risk scores using multiple security factors.
-- **Recommendation Engine:** Generates remediation recommendations based on identified findings.
-
-The results are aggregated into a structured security report containing findings, severity classifications, risk scores, attack paths, and critical resource information.
-
-
-## Risk Scoring Methodology
-
-The tool assigns a numerical risk score to security findings based on multiple factors that influence the potential impact and exploitability of a security issue.
-
-The scoring mechanism considers four primary factors:
-
-### Risk Factors
+The risk scorer combines four configured factors:
 
 | Factor | Description |
 |---|---|
-| **Secret Sensitivity** | Evaluates the sensitivity of exposed Secrets based on their type, metadata, labels, and naming patterns. |
-| **Permission Scope** | Evaluates the scope of permissions associated with the resource, including namespace-level and cluster-level access. |
-| **Wildcard Permissions** | Adds risk for permissions involving wildcard resources or operations, which may grant broader access than intended. |
-| **Attack Path Length** | Considers the length of the identified attack path when evaluating the associated security risk. |
-
-### Risk Score Calculation
-
-The final risk score is calculated by combining the contributions of the four scoring factors.
+| **Secret sensitivity** | Estimates sensitivity using Secret type, name, labels, and namespace metadata. |
+| **Permission scope** | Considers the scope of the permission relationship, including whether it originates from a ClusterRoleBinding. |
+| **Wildcard permissions** | Adds risk when RBAC rules contain wildcard API groups, resources, or verbs. |
+| **Attack-path length** | Considers the number of edges in the modeled path. |
 
 Conceptually:
 
-`Risk Score = Secret Sensitivity + Permission Scope + Wildcard Permissions + Attack Path Length`
+```text
+Risk Score =
+    Secret Sensitivity
+  + Permission Scope
+  + Wildcard Permissions
+  + Attack Path Length
+```
 
-The resulting score is capped at 100.
+The final score is capped at 100.
 
-### Severity Classification
+### Severity classification
 
-Each finding is assigned a severity level according to its calculated risk score.
-
-| Severity | Risk Score |
+| Severity | Risk score |
 |---|---:|
 | LOW | 0–34 |
 | MEDIUM | 35–54 |
 | HIGH | 55–74 |
 | CRITICAL | 75–100 |
 
-### Example
+Risk scores are heuristic prioritization values. They are not probabilities of compromise or guarantees of exploitability.
 
-Consider a finding involving a workload with a path to a sensitive Kubernetes Secret.
-
-An illustrative score breakdown:
-
-| Risk Factor | Score |
-|---|---:|
-| Secret Sensitivity | 30 |
-| Permission Scope | 10 |
-| Wildcard Permissions | 0 |
-| Attack Path Length | 3 |
-| **Total Risk Score** | **43** |
-
-The resulting severity classification is **MEDIUM**.
-
-This scoring approach provides a consistent way to prioritize findings based on the security risks identified during graph analysis.
-
+---
 
 ## Technology Stack
 
-The project is built using Java and the Spring Boot ecosystem, with dedicated libraries for Kubernetes communication, graph processing, and testing.
-
 | Technology | Purpose |
 |---|---|
-| **Java 21** | Primary programming language. |
-| **Spring Boot** | Backend application framework and REST API development. |
-| **Maven** | Dependency management and build automation. |
-| **Fabric8 Kubernetes Client** | Communication with Kubernetes clusters and resource discovery. |
-| **Jackson** | JSON serialization and deserialization. |
-| **JUnit 5** | Unit and integration testing. |
-| **Mockito** | Mocking dependencies during testing. |
-| **MockMvc** | Testing REST API endpoints. |
-| **Minikube** | Local Kubernetes environment for live scanner integration testing. |
+| Java 21 | Primary programming language. |
+| Spring Boot | Backend application and REST APIs. |
+| Maven | Build and dependency management. |
+| Fabric8 Kubernetes Client | Kubernetes API communication and resource scanning. |
+| Jackson | JSON parsing and serialization. |
+| JUnit 5 | Automated testing. |
+| Mockito | Dependency mocking in tests. |
+| MockMvc | REST controller testing. |
+| Minikube | Local Kubernetes environment for live testing. |
 
-### Development Tools
+Development and API tools include Git, GitHub, IntelliJ IDEA, Linux, Postman, and cURL.
 
-- Git and GitHub for version control.
-- IntelliJ IDEA for Java development.
-- Postman and cURL for API testing.
-- Linux for development and execution.
+---
 
-
-## Project Structure
-
-The repository is organized into a Spring Boot backend and supporting sample data.
+## Repository Structure
 
 ```text
-attack-path-visualizer/
-│
+AttackPathVisualizer/
 ├── backend/
 │   ├── src/
-│   │   ├── main/
-│   │   │   └── java/
-│   │   └── test/
-│   │       └── java/
-│   │
+│   │   ├── main/java/com/kunal/attackpathvisualizer/
+│   │   │   ├── analysis/
+│   │   │   ├── common/
+│   │   │   ├── core/
+│   │   │   ├── graph/
+│   │   │   ├── report/
+│   │   │   ├── scanner/
+│   │   │   └── security/
+│   │   └── test/java/
 │   ├── pom.xml
 │   ├── mvnw
 │   └── mvnw.cmd
-│
 ├── sample-data/
 │   ├── clusters/
 │   │   ├── isolated-resources.json
 │   │   ├── multi-path-cluster.json
 │   │   ├── simple-cluster.json
 │   │   └── vulnerable-cluster.json
-│   │
 │   └── reports/
 │       └── security-report-vulnerable-cluster.json
-│
+├── test-environment/
+│   └── vulnerable-cluster.yaml
 ├── .gitignore
 └── README.md
 ```
 
+---
 
 ## Prerequisites
 
-Before setting up the project, ensure the following tools are installed:
-
-| Requirement | Version / Details |
+| Requirement | Version / details |
 |---|---|
-| Java Development Kit (JDK) | 21 |
-| Git | For cloning the repository |
-| Kubernetes Cluster | Minikube or another accessible Kubernetes cluster |
-| kubectl | Kubernetes command-line tool |
-| Maven | Optional, as the project includes Maven Wrapper |
+| JDK | Java 21 |
+| Git | To clone the repository |
+| Kubernetes cluster | Required for live scanning; Minikube is suitable for local testing |
+| `kubectl` | Required to inspect and manage the test cluster |
+| Maven | Optional; the repository includes Maven Wrapper |
 
-A running Kubernetes cluster is required for live cluster scanning. Snapshot-based analysis and the standard test suite can be performed without connecting to a live cluster.
-
+Snapshot-based analysis and the standard test suite do not require a live Kubernetes cluster.
 
 ## Installation and Setup
 
-Follow these steps to set up the project locally.
-
-### 1. Clone the Repository
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/kunal2006999/attack-path-visualizer.git
 cd attack-path-visualizer
 ```
 
-### 2. Navigate to the Backend
+Use the actual directory name created by Git if it differs from `AttackPathVisualizer`.
 
-```bash
-cd backend
-```
-
-### 3. Verify Java Installation
-
-Ensure that JDK 21 is installed:
+### 2. Verify Java
 
 ```bash
 java -version
 ```
 
-### 4. Build the Project
+Ensure Java 21 is active.
 
-Use the included Maven Wrapper to compile the application:
-
-**Linux / macOS:**
-
-```bash
-chmod +x mvnw
-./mvnw clean compile
-```
-
-**Windows:**
-
-```powershell
-mvnw.cmd clean compile
-```
-
-### 5. Configure Kubernetes Access
-
-For live cluster scanning, ensure that:
-
-- A Kubernetes cluster is running and accessible.
-- `kubectl` is installed and configured.
-- Your current Kubernetes context points to the intended cluster.
-- Your credentials have sufficient permissions to read the Kubernetes resources being scanned.
-
-Verify your active Kubernetes context:
-
-```bash
-kubectl config current-context
-```
-
-The application uses the Kubernetes client configuration to connect to the cluster.
-
-**Note:** A live Kubernetes cluster is required for actual cluster scanning. Snapshot-based analysis and the standard test suite can run without connecting to a live cluster.
-
-**Note:** The Maven Wrapper downloads and uses the configured Maven version, so a separate Maven installation is not required.
-
-## Running the Application
-
-After completing the installation and setup, follow these steps to run the backend application.
-
-### 1. Navigate to the Backend Directory
+### 3. Build and test
 
 ```bash
 cd backend
-```
-
-### 2. Start the Spring Boot Application
-
-Run the application using the Maven Wrapper.
-
-**Linux / macOS:**
-
-```bash
-./mvnw spring-boot:run
-```
-
-**Windows:**
-
-```powershell
-mvnw.cmd spring-boot:run
-```
-
-### 3. Verify Application Startup
-
-Wait for Spring Boot to complete its startup process.
-
-By default, the application runs at:
-
-`http://localhost:8080`
-
-The port may differ if overridden in the application configuration.
-
-### 4. Verify Kubernetes Connectivity
-
-For live cluster scanning, ensure that your Kubernetes cluster is running and accessible.
-
-Check the active Kubernetes context:
-
-```bash
-kubectl config current-context
-```
-
-Check cluster connectivity:
-
-```bash
-kubectl cluster-info
-```
-
-The application uses the configured Kubernetes client credentials to communicate with the cluster.
-
-### Important Notes
-
-- A running Kubernetes cluster is required for live resource scanning.
-- The configured Kubernetes identity must have sufficient permissions to access the resources being scanned.
-- Starting the Spring Boot application does not automatically initiate a cluster scan.
-- Snapshot-based analysis does not require a live Kubernetes cluster.
-
-
-## Running Tests
-
-The project includes unit tests, integration tests, and end-to-end tests to validate resource scanning, graph construction, security analysis, and report generation.
-
-All test commands should be executed from the `backend/` directory.
-
-### 1. Run the Standard Test Suite
-
-Execute the following command:
-
-```bash
+chmod +x mvnw
 ./mvnw clean test
 ```
 
-This runs the standard test suite without requiring a live Kubernetes cluster.
+The Maven Wrapper is included, so a separate Maven installation is not required.
 
-### 2. Run Live Kubernetes Integration Tests
+### 4. Configure Kubernetes access for live scanning
 
-The project includes integration tests that interact with an actual Kubernetes cluster to validate resource scanners and the complete security analysis pipeline.
+For live scanning:
 
-These tests use Minikube as the local Kubernetes environment.
-
-Start Minikube:
-
-```bash
-minikube start
-```
-
-Verify the active Kubernetes context:
+1. Ensure the intended Kubernetes cluster is running.
+2. Ensure `kubectl` is installed.
+3. Configure kubeconfig credentials for the cluster.
+4. Check the active context:
 
 ```bash
 kubectl config current-context
+kubectl cluster-info
 ```
 
-Run the live scanner and security pipeline integration tests:
+The live scanning service uses the Kubernetes client configuration available to the application process. The identity must be allowed to read the resource types being scanned.
+
+---
+
+## Running the Application
+
+From the repository root:
 
 ```bash
-./mvnw -Pintegration -Dtest='LiveScannerIntegrationTest,LiveSecurityPipelineIntegrationTest' test
+cd backend
+./mvnw spring-boot:run
 ```
 
-### 3. Run All Integration Tests
+The application runs at:
 
-To execute all integration-tagged tests, including the existing integration tests, run:
-
-```bash
-./mvnw -Pintegration verify
+```text
+http://localhost:8080
 ```
 
-### Test Coverage
+Starting the application does not automatically scan a cluster. Use one of the API endpoints below to initiate analysis.
 
-The test suite validates the following areas:
-
-- Kubernetes resource scanning and snapshot assembly.
-- Graph node and edge construction.
-- Graph traversal and attack-path analysis.
-- RBAC relationship handling.
-- Security findings and risk scoring.
-- Critical resource identification.
-- Security report generation and JSON export.
-- REST API responses and download headers.
-- Live Kubernetes resource discovery and scanner behavior.
-- Error handling for inaccessible clusters and insufficient permissions.
-
-### Important Notes
-
-- Standard tests do not require Minikube or a live Kubernetes cluster.
-- Live integration tests require a running Minikube cluster.
-- The Kubernetes identity used for integration tests must have sufficient permissions to create, inspect, and delete the test resources.
-- Integration tests create controlled Kubernetes resources and clean them up after execution.
-- The live integration tests include safeguards to prevent accidental execution against an unintended cluster.
+---
 
 ## API Documentation
 
-The application exposes a REST API to perform security analysis on a Kubernetes cluster snapshot and export the resulting security report in JSON format.
+The application exposes two report-generation endpoints.
 
-### Security Report Export
+### 1. Analyze a supplied cluster snapshot
 
 | Property | Value |
 |---|---|
-| **Endpoint** | `/api/security/reports/export` |
-| **HTTP Method** | `POST` |
-| **Content-Type** | `application/json` |
-| **Response Format** | JSON |
+| Method | `POST` |
+| Endpoint | `/api/security/reports/export` |
+| Content-Type | `application/json` |
+| Response | JSON security report |
 
-The endpoint accepts a Kubernetes cluster snapshot, executes the graph construction and security analysis pipeline, and returns the generated security report.
+This endpoint accepts a `ClusterSnapshot` JSON request body. It validates the snapshot, constructs the graph, runs security analysis, and returns the report.
 
-### Request Parameters
+#### Example request
 
-The endpoint supports the following query parameter:
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `download` | Boolean | `false` | When set to `true`, returns the JSON report as a downloadable attachment. |
-
-### Request Body
-
-The request body must contain a valid Kubernetes cluster snapshot in JSON format.
-
-The snapshot is validated and processed through the following stages:
-
-1. Cluster snapshot validation.
-2. Graph construction.
-3. Attack-path and security analysis.
-4. Risk assessment.
-5. Security report generation.
-
-The expected request structure follows the `ClusterSnapshot` model.
-
-### Example Request
+Run from the `backend/` directory while the application is running:
 
 ```bash
-curl -X POST http://localhost:8080/api/security/reports/export \
+curl -X POST \
+  "http://localhost:8080/api/security/reports/export" \
   -H "Content-Type: application/json" \
   -d @../sample-data/clusters/vulnerable-cluster.json
 ```
 
-### Download Security Report
+#### Download the report
 
-To download the generated report as a JSON attachment:
+Add `download=true` to return the report as an attachment:
 
 ```bash
 curl -X POST \
@@ -576,97 +403,200 @@ curl -X POST \
   -o security-report.json
 ```
 
-The downloaded filename is generated using the cluster name:
+The filename follows this pattern:
 
-`security-report-<cluster-name>.json`
+```text
+security-report-<cluster-name>.json
+```
 
-### Response Structure
+### 2. Scan the currently configured Kubernetes cluster
 
-The API returns a structured JSON security report containing the following top-level fields:
+| Property | Value |
+|---|---|
+| Method | `POST` |
+| Endpoint | `/api/security/reports/scan` |
+| Request body | Not required |
+| Response | JSON security report |
+
+This endpoint creates a Kubernetes client using the application's current Kubernetes client configuration, scans the supported resource categories, and runs the same graph and security analysis pipeline.
+
+#### Query parameters
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---:|---|---|
+| `clusterName` | String | Yes | — | Display name included in the generated report. It does not select the Kubernetes context. |
+| `download` | Boolean | No | `false` | When `true`, returns the report as a downloadable JSON attachment. |
+
+**Important:** The endpoint scans the cluster selected by the active kubeconfig context. The `clusterName` parameter is a report label only.
+
+#### Example live scan
+
+First, verify the context:
+
+```bash
+kubectl config current-context
+```
+
+Then call the API:
+
+```bash
+curl -X POST \
+  "http://localhost:8080/api/security/reports/scan?clusterName=minikube" \
+  -H "Content-Type: application/json"
+```
+
+#### Download a live scan report
+
+```bash
+curl -X POST \
+  "http://localhost:8080/api/security/reports/scan?clusterName=minikube&download=true" \
+  -H "Content-Type: application/json" \
+  -o security-report-minikube.json
+```
+
+### Report response structure
+
+The JSON report contains these top-level fields:
 
 | Field | Description |
 |---|---|
-| `clusterName` | Name of the analyzed Kubernetes cluster. |
-| `generatedAt` | Timestamp indicating when the report was generated. |
+| `clusterName` | Report name supplied for the analyzed cluster. |
+| `generatedAt` | Report generation timestamp. |
 | `totalFindings` | Total number of security findings. |
-| `severityCounts` | Number of findings grouped by severity. |
-| `findings` | Detailed list of identified security findings. |
-| `criticalResources` | List of resources identified as critical during analysis. |
+| `severityCounts` | Finding counts grouped by severity. |
+| `findings` | Detailed security findings. |
+| `criticalResources` | Resources identified as critical by the analysis. |
 
-Each finding contains:
+A finding includes its ID, title, description, entry point, target, attack path, risk score, severity, score factors, and recommendation.
 
-- Finding ID, title, and description.
-- Entry-point and target resource information.
-- Identified attack path.
-- Numerical risk score and severity.
-- Individual risk score factors and their explanations.
-- Remediation recommendation.
+A critical-resource entry includes resource information, risk score, affected Secret count, finding count, and an explanatory reason.
 
-Each critical resource contains:
+### Error responses
 
-- Resource information.
-- Risk score.
-- Number of affected Secrets.
-- Number of associated findings.
-- Explanation of why the resource is considered critical.
+The API uses structured JSON error responses for supported request and scan failures. Examples include:
 
-### Example Security Report
+- `400 Bad Request` for invalid snapshot input or a blank cluster name.
+- `415 Unsupported Media Type` when the request content type is unsupported.
+- `502 Bad Gateway` when the live Kubernetes scan fails.
 
-The repository includes a complete security report generated from `vulnerable-cluster`. It demonstrates the exported report structure, including finding details, structured attack-path nodes, risk factors, severity classifications, critical resources, and remediation recommendations.
+---
 
-You can view the complete JSON report here:
+## Sample Data
 
-[`security-report-vulnerable-cluster.json`](sample-data/reports/security-report-vulnerable-cluster.json)
-
-
-## Sample Cluster Data
-
-The repository includes sample Kubernetes cluster snapshots that can be used to test and demonstrate the security analysis pipeline without requiring a live Kubernetes cluster.
-
-### Available Samples
+The repository includes cluster snapshots for exercising the snapshot-based analysis pipeline without connecting to a live Kubernetes cluster.
 
 | File | Description |
 |---|---|
-| `simple-cluster.json` | Represents a basic Kubernetes cluster configuration. |
-| `vulnerable-cluster.json` | Contains deliberately modeled security weaknesses and attack paths for demonstrating security analysis. |
-| `multi-path-cluster.json` | Demonstrates multiple potential attack paths within a cluster. |
-| `isolated-resources.json` | Contains resources with limited or no relevant graph connections. |
+| `simple-cluster.json` | A basic cluster configuration. |
+| `vulnerable-cluster.json` | A modeled cluster containing security weaknesses and potential attack paths. |
+| `multi-path-cluster.json` | A cluster demonstrating multiple potential attack paths. |
+| `isolated-resources.json` | Resources with limited or no relevant graph connections. |
 
-### Generated Security Report
+A sample generated report is available at:
 
-The generated report is linked in the [API Documentation](#api-documentation).
+[`sample-data/reports/security-report-vulnerable-cluster.json`](sample-data/reports/security-report-vulnerable-cluster.json)
 
-It demonstrates the tool's ability to identify multiple paths from a workload to a sensitive Secret, calculate risk scores, classify findings by severity, and identify critical resources.
+The deliberately vulnerable Minikube manifest used for live validation is available at:
 
-The sample data is intended for testing and demonstration purposes and does not represent a production Kubernetes environment.
+[`test-environment/vulnerable-cluster.yaml`](test-environment/vulnerable-cluster.yaml)
 
+### Optional: Reproduce the live validation environment
+
+**Use only a disposable local/test cluster. Do not apply this intentionally overprivileged configuration to a production cluster.**
+
+From the repository root:
+
+```bash
+kubectl apply -f test-environment/vulnerable-cluster.yaml
+```
+
+After the resources are created, run the live scan:
+
+```bash
+curl -X POST \
+  "http://localhost:8080/api/security/reports/scan?clusterName=minikube" \
+  -H "Content-Type: application/json" \
+  -o vulnerable-report.json
+```
+
+The validation setup is designed to model an overprivileged ServiceAccount associated with a Pod and a dummy Secret. The resulting report can be inspected for a modeled Pod-to-Secret path.
+
+When finished, remove the test resources:
+
+```bash
+kubectl delete -f test-environment/vulnerable-cluster.yaml
+```
+
+This cleanup command deletes the resources defined in that manifest, including its test namespace and cluster-scoped RBAC resources.
+
+---
+
+## Testing
+
+Run commands from the `backend/` directory.
+
+### Standard test suite
+
+```bash
+./mvnw clean test
+```
+
+The standard suite covers snapshot parsing and validation, graph construction, graph algorithms, security analysis, report generation, and REST API behavior. It does not require a live Kubernetes cluster.
+
+### Live Kubernetes integration tests
+
+Live integration tests require a running Minikube cluster and a Kubernetes identity with the permissions needed by the tests.
+
+```bash
+minikube start
+kubectl config current-context
+```
+
+Run the live scanner and security pipeline tests:
+
+```bash
+./mvnw -Pintegration -Dtest='LiveScannerIntegrationTest,LiveSecurityPipelineIntegrationTest' test
+```
+
+Run the integration profile's verification lifecycle:
+
+```bash
+./mvnw -Pintegration verify
+```
+
+**Caution:** Integration tests may create, inspect, and delete Kubernetes test resources. Use a disposable test cluster and verify the active context before running them.
+
+---
 
 ## Security Considerations
 
-- **Secret Data Protection:** The scanner collects Kubernetes Secret metadata for security analysis without capturing or exporting actual Secret values.
-- **RBAC Permissions:** The Kubernetes identity used by the application should have only the permissions required for scanning supported resources.
-- **Cluster Access:** Always verify the active Kubernetes context before running live scans to avoid unintentionally scanning the wrong cluster.
-- **Test Environment:** Use a dedicated test cluster such as Minikube when running live integration tests.
-- **Security Findings:** Reported attack paths represent modeled access relationships derived from collected resources and RBAC rules. They should be validated against the actual cluster configuration.
+- **Protect the live scan endpoint:** The endpoint uses the Kubernetes credentials available to the application. Do not expose it to untrusted users or networks without authentication, authorization, and appropriate deployment controls.
+- **Use least-privilege credentials:** Grant the scanning identity only the read permissions required for the supported resource categories.
+- **Check the active context:** The live endpoint uses the current kubeconfig context; `clusterName` does not switch contexts.
+- **Protect Secret data:** The scanner is designed to collect Secret metadata for analysis, not actual Secret values.
+- **Treat findings as modeled risks:** A graph path represents an access relationship inferred from collected data and implemented rules. It is not proof of exploitation or successful runtime access.
+- **Use isolated test clusters:** The included vulnerable manifest intentionally grants excessive permissions and must only be applied to a disposable test environment.
 
+---
 
 ## Limitations
 
-- **Resource Coverage:** Currently supports 10 categories of Kubernetes resources. Other resource types are not yet included in the scanning pipeline.
-- **Analysis Scope:** Security findings depend on the resources and relationships collected during scanning. Unmodeled relationships may result in incomplete attack paths.
-- **Risk Scoring:** Risk scores are heuristic estimates based on predefined factors and weights, not guarantees of real-world exploitability.
-- **Cluster Access:** Live scanning depends on Kubernetes API availability and sufficient permissions.
-- **Frontend:** The project currently provides a backend REST API without a dedicated graphical user interface.
-- **Persistence:** Security reports are generated on demand and are not stored in a persistent database.
-
+- **Resource coverage:** Live scanning currently covers the 10 resource categories listed above. Other resource types and relationships may not be collected by the live scanner.
+- **Modeled relationships:** Analysis is limited to relationships that can be derived from collected resources and implemented graph rules.
+- **Authorization semantics:** Modeled RBAC access paths are not a complete substitute for Kubernetes authorization evaluation in every possible configuration.
+- **Heuristic risk scoring:** Scores are based on configured factors and weights; they are prioritization estimates, not exploitability probabilities.
+- **Live access requirements:** Scanning depends on Kubernetes API availability and sufficient read permissions.
+- **No graphical interface:** The project currently exposes backend REST APIs and does not include a frontend.
+- **No persistent report storage:** Reports are generated on demand and are not stored in a database.
 
 ## Future Improvements
 
-Potential areas for extending the project include:
+Potential directions for further development include:
 
-- **Expanded Resource Coverage:** Add scanners for Deployments, Ingresses, PersistentVolumes, PersistentVolumeClaims, and additional Kubernetes resources.
-- **Advanced Security Analysis:** Extend attack-path detection to cover more complex privilege escalation scenarios and Kubernetes security misconfigurations.
-- **Visualization:** Develop a graphical interface for interactive attack graph exploration and security report visualization.
-- **Historical Analysis:** Introduce persistent storage to track security findings and compare reports across multiple scans.
-- **Automated Scanning:** Support scheduled cluster scans and continuous security monitoring.
-- **Report Enhancements:** Add additional export formats and more detailed security recommendations.
+- Expanding live scanning to additional Kubernetes resource types and relationships.
+- Improving RBAC authorization modeling and privilege-escalation analysis.
+- Adding an interactive attack-graph visualization frontend.
+- Persisting reports and supporting historical comparisons.
+- Adding scheduled scans and continuous monitoring.
+- Extending report formats and remediation guidance.
+

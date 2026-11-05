@@ -60,7 +60,7 @@ class SecurityReportControllerTest {
     }
 
     private String fixture(String name) throws Exception {
-        return Files.readString(Path.of("sample-data", "clusters", name));
+        return Files.readString(Path.of("..", "sample-data", "clusters", name));
     }
 
     private MockHttpServletResponse postJson(String url, String body) throws Exception {

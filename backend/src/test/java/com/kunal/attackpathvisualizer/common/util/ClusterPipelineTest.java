@@ -33,6 +33,7 @@ class ClusterPipelineTest {
     void shouldConvertJsonToAttackGraph() throws IOException {
 
         Path file = Path.of(
+                "..",
                 "sample-data",
                 "clusters",
                 "simple-cluster.json"
@@ -135,6 +136,7 @@ class ClusterPipelineTest {
     private AttackGraph buildGraph(String fileName) {
 
         Path file = Path.of(
+                "..",
                 "sample-data",
                 "clusters",
                 fileName
