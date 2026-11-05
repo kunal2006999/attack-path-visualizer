@@ -1,0 +1,964 @@
+{
+  "clusterName" : "minikube",
+  "generatedAt" : "2026-11-05T06:36:08.154220465Z",
+  "totalFindings" : 1,
+  "severityCounts" : {
+    "LOW" : 0,
+    "MEDIUM" : 0,
+    "HIGH" : 1,
+    "CRITICAL" : 0
+  },
+  "findings" : [ {
+    "id" : "27104098-b8a7-4aaa-b396-d2d2621dd31d",
+    "title" : "Pod can reach Secret: dummy-sensitive-secret",
+    "description" : "The modeled graph contains a directed path from Pod 'vulnerable-pod' to Secret 'dummy-sensitive-secret', ending with a CAN_ACCESS edge from 'apv-overprivileged-binding'. This indicates modeled Secret access according to the collected cluster relationships and RBAC rules.",
+    "entryPoint" : {
+      "id" : "POD:apv-security-test:vulnerable-pod",
+      "resourceId" : "c457fbbe-44a2-4124-bfd0-cd7d1a8ccd34",
+      "type" : "POD",
+      "name" : "vulnerable-pod",
+      "namespace" : "apv-security-test"
+    },
+    "target" : {
+      "id" : "SECRET:apv-security-test:dummy-sensitive-secret",
+      "resourceId" : "a8622101-d45f-472f-b2d0-78a99f06201f",
+      "type" : "SECRET",
+      "name" : "dummy-sensitive-secret",
+      "namespace" : "apv-security-test"
+    },
+    "attackPath" : [ {
+      "id" : "POD:apv-security-test:vulnerable-pod",
+      "resourceId" : "c457fbbe-44a2-4124-bfd0-cd7d1a8ccd34",
+      "type" : "POD",
+      "name" : "vulnerable-pod",
+      "namespace" : "apv-security-test"
+    }, {
+      "id" : "SERVICE_ACCOUNT:apv-security-test:vulnerable-sa",
+      "resourceId" : "a9ef8c1b-71a7-4987-af97-f1d56c5cf3aa",
+      "type" : "SERVICE_ACCOUNT",
+      "name" : "vulnerable-sa",
+      "namespace" : "apv-security-test"
+    }, {
+      "id" : "CLUSTER_ROLE_BINDING:apv-overprivileged-binding",
+      "resourceId" : "88993845-e754-4998-baf9-e3c8a99eb8f1",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "apv-overprivileged-binding",
+      "namespace" : null
+    }, {
+      "id" : "SECRET:apv-security-test:dummy-sensitive-secret",
+      "resourceId" : "a8622101-d45f-472f-b2d0-78a99f06201f",
+      "type" : "SECRET",
+      "name" : "dummy-sensitive-secret",
+      "namespace" : "apv-security-test"
+    } ],
+    "riskScore" : 65,
+    "severity" : "HIGH",
+    "scoreFactors" : [ {
+      "name" : "SECRET_SENSITIVITY",
+      "points" : 20,
+      "reason" : "Estimated Secret sensitivity based on its type, name, labels, and namespace."
+    }, {
+      "name" : "PERMISSION_SCOPE",
+      "points" : 30,
+      "reason" : "The access edge originates from a ClusterRoleBinding, which grants permissions cluster-wide to the referenced ClusterRole's rules."
+    }, {
+      "name" : "WILDCARD_PERMISSION",
+      "points" : 10,
+      "reason" : "At least one RBAC rule uses a wildcard (*) in apiGroups, resources, or verbs, broadening the grant scope."
+    }, {
+      "name" : "ATTACK_PATH_LENGTH",
+      "points" : 5,
+      "reason" : "The modeled path contains 3 edge(s). Shorter paths indicate more direct access."
+    } ],
+    "recommendation" : "Review the ClusterRoleBinding's subjects and referenced ClusterRole. Remove unnecessary Secret permissions and restrict access to the required subjects."
+  } ],
+  "criticalResources" : [ {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:apv-overprivileged-binding",
+      "resourceId" : "88993845-e754-4998-baf9-e3c8a99eb8f1",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "apv-overprivileged-binding",
+      "namespace" : null
+    },
+    "riskScore" : 40,
+    "affectedSecretCount" : 1,
+    "findingCount" : 1,
+    "reason" : "Appears in 1 security finding(s); Can reach 1 Secret node(s); Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:cluster-admin",
+      "resourceId" : "771d46e1-83a9-4635-9720-7b62d423c5b1",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "cluster-admin",
+      "namespace" : null
+    },
+    "riskScore" : 25,
+    "affectedSecretCount" : 1,
+    "findingCount" : 0,
+    "reason" : "Can reach 1 Secret node(s); Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:kubeadm:cluster-admins",
+      "resourceId" : "de1ef16c-af23-4551-b5c2-9e1e0e3e1f2c",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "kubeadm:cluster-admins",
+      "namespace" : null
+    },
+    "riskScore" : 25,
+    "affectedSecretCount" : 1,
+    "findingCount" : 0,
+    "reason" : "Can reach 1 Secret node(s); Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:minikube-rbac",
+      "resourceId" : "d10d04ae-605a-45e7-8b43-508634cebf82",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "minikube-rbac",
+      "namespace" : null
+    },
+    "riskScore" : 25,
+    "affectedSecretCount" : 1,
+    "findingCount" : 0,
+    "reason" : "Can reach 1 Secret node(s); Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:generic-garbage-collector",
+      "resourceId" : "be41a895-0aec-4855-89a1-2a3528c3dfd8",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:generic-garbage-collector",
+      "namespace" : null
+    },
+    "riskScore" : 25,
+    "affectedSecretCount" : 1,
+    "findingCount" : 0,
+    "reason" : "Can reach 1 Secret node(s); Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:namespace-controller",
+      "resourceId" : "734bda87-6cdf-460c-88a5-299671e5a35a",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:namespace-controller",
+      "namespace" : null
+    },
+    "riskScore" : 25,
+    "affectedSecretCount" : 1,
+    "findingCount" : 0,
+    "reason" : "Can reach 1 Secret node(s); Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:resourcequota-controller",
+      "resourceId" : "9440e8f8-f47b-4edd-8c99-7f2ed4f478dc",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:resourcequota-controller",
+      "namespace" : null
+    },
+    "riskScore" : 25,
+    "affectedSecretCount" : 1,
+    "findingCount" : 0,
+    "reason" : "Can reach 1 Secret node(s); Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:storage-version-migrator-controller",
+      "resourceId" : "d6579134-1ecc-4be1-a90d-432a0aefbb08",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:storage-version-migrator-controller",
+      "namespace" : null
+    },
+    "riskScore" : 25,
+    "affectedSecretCount" : 1,
+    "findingCount" : 0,
+    "reason" : "Can reach 1 Secret node(s); Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:kube-controller-manager",
+      "resourceId" : "aa07c657-0629-4e86-9db2-98527d01f033",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:kube-controller-manager",
+      "namespace" : null
+    },
+    "riskScore" : 25,
+    "affectedSecretCount" : 1,
+    "findingCount" : 0,
+    "reason" : "Can reach 1 Secret node(s); Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:node",
+      "resourceId" : "7bfd4798-2d39-43b7-9e96-ebc9734e93bd",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:node",
+      "namespace" : null
+    },
+    "riskScore" : 25,
+    "affectedSecretCount" : 1,
+    "findingCount" : 0,
+    "reason" : "Can reach 1 Secret node(s); Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "POD:apv-security-test:vulnerable-pod",
+      "resourceId" : "c457fbbe-44a2-4124-bfd0-cd7d1a8ccd34",
+      "type" : "POD",
+      "name" : "vulnerable-pod",
+      "namespace" : "apv-security-test"
+    },
+    "riskScore" : 25,
+    "affectedSecretCount" : 1,
+    "findingCount" : 1,
+    "reason" : "Appears in 1 security finding(s); Can reach 1 Secret node(s)"
+  }, {
+    "resource" : {
+      "id" : "SERVICE_ACCOUNT:apv-security-test:vulnerable-sa",
+      "resourceId" : "a9ef8c1b-71a7-4987-af97-f1d56c5cf3aa",
+      "type" : "SERVICE_ACCOUNT",
+      "name" : "vulnerable-sa",
+      "namespace" : "apv-security-test"
+    },
+    "riskScore" : 25,
+    "affectedSecretCount" : 1,
+    "findingCount" : 1,
+    "reason" : "Appears in 1 security finding(s); Can reach 1 Secret node(s)"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:kindnet",
+      "resourceId" : "dd268f6d-3e63-46e2-aa81-11ab6f3817db",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "kindnet",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:kubeadm:apiserver-kubelet-client",
+      "resourceId" : "867b4362-603d-4b73-a4f3-96199d4d032c",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "kubeadm:apiserver-kubelet-client",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:kubeadm:get-nodes",
+      "resourceId" : "80abbccd-a49a-4c71-ad3b-44f539fef4a5",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "kubeadm:get-nodes",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:kubeadm:kubelet-bootstrap",
+      "resourceId" : "6ec95872-4544-47d7-add3-8a290e3fd36c",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "kubeadm:kubelet-bootstrap",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:kubeadm:node-autoapprove-bootstrap",
+      "resourceId" : "2b3dddec-591b-4388-b3ed-cc14bb35f426",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "kubeadm:node-autoapprove-bootstrap",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:kubeadm:node-autoapprove-certificate-rotation",
+      "resourceId" : "34e64f6a-6470-4e5f-840e-06802468d84e",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "kubeadm:node-autoapprove-certificate-rotation",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:kubeadm:node-proxier",
+      "resourceId" : "7c45e6d5-f8cd-4dac-9a4d-021cbc0f827b",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "kubeadm:node-proxier",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:storage-provisioner",
+      "resourceId" : "ae098b6e-bfb0-439d-aac4-973b6cbeeda5",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "storage-provisioner",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:basic-user",
+      "resourceId" : "e614b8ea-b1b7-422e-a033-7dff615d54cb",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:basic-user",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:cluster-trust-bundle-discovery",
+      "resourceId" : "a4c93b12-c330-4ad0-bec4-e4a6e7fc1e2f",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:cluster-trust-bundle-discovery",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:attachdetach-controller",
+      "resourceId" : "cb96d14b-a229-4177-81d7-45d3ccb83d49",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:attachdetach-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:certificate-controller",
+      "resourceId" : "61834830-c371-43a2-81db-6af4b9b7a90c",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:certificate-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:clusterrole-aggregation-controller",
+      "resourceId" : "87d98e87-22b0-4f1b-b7f1-16ab4b3bb651",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:clusterrole-aggregation-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:cronjob-controller",
+      "resourceId" : "f7cf92d3-7a61-4aeb-b011-e17ab688c96b",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:cronjob-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:daemon-set-controller",
+      "resourceId" : "575889a8-98fb-4c65-99e1-bbe57c20f531",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:daemon-set-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:deployment-controller",
+      "resourceId" : "cc689b83-e1e7-4478-988b-b903e2d87931",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:deployment-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:device-taint-eviction-controller",
+      "resourceId" : "7beea9a6-a4f7-442f-9a57-f684a8b0a61c",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:device-taint-eviction-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:disruption-controller",
+      "resourceId" : "b88e03b6-b352-4002-91df-da93c10a47f2",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:disruption-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:endpoint-controller",
+      "resourceId" : "1254a241-132c-45c1-8ca7-1417ec91f2d3",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:endpoint-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:endpointslice-controller",
+      "resourceId" : "094a9fda-625a-4501-824a-77f499a97de5",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:endpointslice-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:endpointslicemirroring-controller",
+      "resourceId" : "836e28b0-d344-4670-b681-4e9081464e02",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:endpointslicemirroring-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:ephemeral-volume-controller",
+      "resourceId" : "769de3e3-e34c-499e-bb10-547a166d4d26",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:ephemeral-volume-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:expand-controller",
+      "resourceId" : "b40c228a-3d5b-4b4d-8323-b49c4cd6c426",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:expand-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:horizontal-pod-autoscaler",
+      "resourceId" : "b24decb9-8985-4027-b7b0-ffbf150c2246",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:horizontal-pod-autoscaler",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:job-controller",
+      "resourceId" : "24e90e08-db44-4644-af54-35eb4a339da4",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:job-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:kube-apiserver-serving-clustertrustbundle-publisher",
+      "resourceId" : "6eb07fd7-9b15-4d3e-a145-81c649fcfcb8",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:kube-apiserver-serving-clustertrustbundle-publisher",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:legacy-service-account-token-cleaner",
+      "resourceId" : "5f8d71d5-feae-46c1-a36a-cbe8dfc32d0b",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:legacy-service-account-token-cleaner",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:node-controller",
+      "resourceId" : "26932024-b875-44ed-a306-e7e87ec1aa65",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:node-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:persistent-volume-binder",
+      "resourceId" : "26ccd81d-3f1a-4d26-9b07-81d3a9b3ec79",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:persistent-volume-binder",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:pod-garbage-collector",
+      "resourceId" : "eaee556f-b29d-4b6c-b18d-f4ff8873ed6c",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:pod-garbage-collector",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:podcertificaterequestcleaner",
+      "resourceId" : "3766ffe7-28d5-4b03-9aac-454f586ab579",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:podcertificaterequestcleaner",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:pv-protection-controller",
+      "resourceId" : "0597af0c-957a-4421-9f8b-9e31a316903d",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:pv-protection-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:pvc-protection-controller",
+      "resourceId" : "d3296748-179a-4aea-ba2c-95e0fa412db2",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:pvc-protection-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:replicaset-controller",
+      "resourceId" : "c942a315-99ec-4b74-bbbd-d7ac964abf81",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:replicaset-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:replication-controller",
+      "resourceId" : "e3e39e61-0308-4e3f-8849-249ccf843c98",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:replication-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:resource-claim-controller",
+      "resourceId" : "1ddced0b-24ac-4364-9b44-0ceddb8eb18e",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:resource-claim-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:root-ca-cert-publisher",
+      "resourceId" : "c15bc2e3-0ba1-4195-be91-0f0b01ebc160",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:root-ca-cert-publisher",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:route-controller",
+      "resourceId" : "188b069e-4eae-451d-b25c-c2098ff10ba3",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:route-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:selinux-warning-controller",
+      "resourceId" : "d3d525f9-52c6-495a-a347-ff87d5d64134",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:selinux-warning-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:service-account-controller",
+      "resourceId" : "09cc79ce-b297-454e-82f1-3f7e261fad56",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:service-account-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:service-cidrs-controller",
+      "resourceId" : "81b8357b-8c95-4d8e-b9c5-2066026efc73",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:service-cidrs-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:service-controller",
+      "resourceId" : "65556a02-4a3e-45f3-9c66-06f0f629b4df",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:service-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:statefulset-controller",
+      "resourceId" : "26e4051b-990d-42b6-a81d-c0cba06e47dc",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:statefulset-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:ttl-after-finished-controller",
+      "resourceId" : "5fe710e6-0415-406c-8686-640af03ac251",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:ttl-after-finished-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:ttl-controller",
+      "resourceId" : "b3a19cac-f461-4617-9424-1c1102d79a18",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:ttl-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:validatingadmissionpolicy-status-controller",
+      "resourceId" : "6eac1ca3-b2fb-45a9-aa7b-4bd9315f51b8",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:validatingadmissionpolicy-status-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:controller:volumeattributesclass-protection-controller",
+      "resourceId" : "73074935-af4d-4f14-8a78-9633d760851d",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:controller:volumeattributesclass-protection-controller",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:coredns",
+      "resourceId" : "f66b2168-0d20-4d9a-9ce9-61ae057fce6e",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:coredns",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:discovery",
+      "resourceId" : "278481a1-b047-4c45-bd51-12f132727d91",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:discovery",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:kube-dns",
+      "resourceId" : "3a13db79-c455-4484-a937-da91ce73a80d",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:kube-dns",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:kube-scheduler",
+      "resourceId" : "691fa594-9968-4c71-8d32-f6c5848ed98f",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:kube-scheduler",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:monitoring",
+      "resourceId" : "6a7a9667-3924-44c5-8ccc-016b626d532e",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:monitoring",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:node-proxier",
+      "resourceId" : "4e7c7c4c-bd45-45f1-8d95-d6f591191ea0",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:node-proxier",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:public-info-viewer",
+      "resourceId" : "8803fb1f-55b6-4b8f-84e6-d109210d7af1",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:public-info-viewer",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:service-account-issuer-discovery",
+      "resourceId" : "01bcac09-a4b8-40ba-82f8-b0453a6f55f9",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:service-account-issuer-discovery",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "CLUSTER_ROLE_BINDING:system:volume-scheduler",
+      "resourceId" : "3d32e01f-fa29-4415-91d5-5e0b9aa0abb8",
+      "type" : "CLUSTER_ROLE_BINDING",
+      "name" : "system:volume-scheduler",
+      "namespace" : null
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 0,
+    "reason" : "Is a ClusterRoleBinding requiring permission-scope review"
+  }, {
+    "resource" : {
+      "id" : "SECRET:apv-security-test:dummy-sensitive-secret",
+      "resourceId" : "a8622101-d45f-472f-b2d0-78a99f06201f",
+      "type" : "SECRET",
+      "name" : "dummy-sensitive-secret",
+      "namespace" : "apv-security-test"
+    },
+    "riskScore" : 15,
+    "affectedSecretCount" : 0,
+    "findingCount" : 1,
+    "reason" : "Appears in 1 security finding(s)"
+  }, {
+    "resource" : {
+      "id" : "SERVICE_ACCOUNT:kube-system:default",
+      "resourceId" : "a0fcd6a4-cedd-4a70-913b-b710d5a3d757",
+      "type" : "SERVICE_ACCOUNT",
+      "name" : "default",
+      "namespace" : "kube-system"
+    },
+    "riskScore" : 10,
+    "affectedSecretCount" : 1,
+    "findingCount" : 0,
+    "reason" : "Can reach 1 Secret node(s)"
+  }, {
+    "resource" : {
+      "id" : "SERVICE_ACCOUNT:kube-system:generic-garbage-collector",
+      "resourceId" : "edd72a0c-81b6-4d59-a1e3-7a932f7ab44e",
+      "type" : "SERVICE_ACCOUNT",
+      "name" : "generic-garbage-collector",
+      "namespace" : "kube-system"
+    },
+    "riskScore" : 10,
+    "affectedSecretCount" : 1,
+    "findingCount" : 0,
+    "reason" : "Can reach 1 Secret node(s)"
+  }, {
+    "resource" : {
+      "id" : "SERVICE_ACCOUNT:kube-system:namespace-controller",
+      "resourceId" : "10c51809-fa84-494d-b254-bdf6d0abb9f3",
+      "type" : "SERVICE_ACCOUNT",
+      "name" : "namespace-controller",
+      "namespace" : "kube-system"
+    },
+    "riskScore" : 10,
+    "affectedSecretCount" : 1,
+    "findingCount" : 0,
+    "reason" : "Can reach 1 Secret node(s)"
+  }, {
+    "resource" : {
+      "id" : "SERVICE_ACCOUNT:kube-system:resourcequota-controller",
+      "resourceId" : "9e3b9069-1411-4de4-8fe2-c4a9a4c11b06",
+      "type" : "SERVICE_ACCOUNT",
+      "name" : "resourcequota-controller",
+      "namespace" : "kube-system"
+    },
+    "riskScore" : 10,
+    "affectedSecretCount" : 1,
+    "findingCount" : 0,
+    "reason" : "Can reach 1 Secret node(s)"
+  }, {
+    "resource" : {
+      "id" : "SERVICE_ACCOUNT:kube-system:storage-version-migrator-controller",
+      "resourceId" : "018c4704-5ee4-4857-a2b8-61ae1d62d70c",
+      "type" : "SERVICE_ACCOUNT",
+      "name" : "storage-version-migrator-controller",
+      "namespace" : "kube-system"
+    },
+    "riskScore" : 10,
+    "affectedSecretCount" : 1,
+    "findingCount" : 0,
+    "reason" : "Can reach 1 Secret node(s)"
+  } ]
+}
